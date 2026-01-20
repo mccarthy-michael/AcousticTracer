@@ -3,7 +3,7 @@
 ## Types
 
 ```C
-PascalCase_t
+AT_PascalCase
 ```
 
 ## Variables
@@ -20,7 +20,7 @@ auxilliaryVerb_presentParticiple
 ## Functions
 
 ```C
-int camelCase()
+int AT_snake_case()
 {
   return;
 }
@@ -32,12 +32,6 @@ int camelCase()
 at_snake_case
 ```
 
-## Struct
-
-```C
-PascalCase
-```
-
 ## Constants
 
 ```C
@@ -47,7 +41,7 @@ SNAKE_CASE
 ## Macros
 
 ```C
-SNAKE_CASE
+AT_SNAKE_CASE
 ```
 
 ## Maths
