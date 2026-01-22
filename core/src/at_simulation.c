@@ -3,10 +3,12 @@
 #include "acoustic/at_math.h"
 #include "acoustic/at_scene.h"
 #include "acoustic/at_ray.h"
+#include "acoustic/at_internal.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 
+//TODO: move to at_internal.h when merged
 struct AT_Simulation {
     AT_Voxel *voxel_grid;
     AT_Ray *rays;
@@ -36,9 +38,9 @@ AT_Result AT_simulation_create(AT_Simulation **out_simulation, const AT_Scene *s
     float grid_x = (dimensions.x / settings->voxel_size) + 1;
     float grid_y = (dimensions.y / settings->voxel_size) + 1;
     float grid_z = (dimensions.z / settings->voxel_size) + 1;
-    uint32_t num_voxels = (uint32_t){grid_x * grid_y * grid_z};
+    uint32_t num_voxels = (uint32_t)(grid_x * grid_y * grid_z);
 
-    simulation->voxel_grid = (AT_Voxel*)malloc(sizeof(AT_Voxel) * num_voxels);
+    simulation->voxel_grid = calloc(num_voxels, sizeof(AT_Voxel));
     if (!simulation->voxel_grid) {
         free(simulation->rays);
         free(simulation);
@@ -46,7 +48,7 @@ AT_Result AT_simulation_create(AT_Simulation **out_simulation, const AT_Scene *s
     }
 
     // Gonna have to initialize a dynamic array for each voxel to store bins dynamically
-    for (size_t i = 0; i < num_voxels; i++) {
+    for (uint32_t i = 0; i < num_voxels; i++) {
         AT_voxel_init(&simulation->voxel_grid[i]);
     }
 
@@ -75,6 +77,15 @@ AT_Result AT_simulation_run(AT_Simulation *simulation) {
 
 void AT_simulation_destroy(AT_Simulation *simulation) {
     if (!simulation) return;
+
+    float num_voxels = (uint32_t)(simulation->dimensions.x / simulation->voxel_size) *
+                                 (simulation->dimensions.y / simulation->voxel_size) *
+                                 (simulation->dimensions.z / simulation->voxel_size);
+
+    for (uint32_t i = 0; i < num_voxels; i++) {
+        AT_voxel_cleanup(&simulation->voxel_grid[i]);
+    }
+
     free(simulation->voxel_grid);
     free(simulation->rays);
     free(simulation);
