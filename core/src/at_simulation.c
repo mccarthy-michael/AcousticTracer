@@ -75,7 +75,7 @@ AT_Result AT_simulation_run(AT_Simulation *simulation) {
 
 void AT_simulation_destroy(AT_Simulation *simulation) {
     if (!simulation) return;
-    free(simulation->voxels);
+    free(simulation->voxel_grid);
     free(simulation->rays);
     free(simulation);
 }
