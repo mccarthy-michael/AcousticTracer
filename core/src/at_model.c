@@ -2,7 +2,6 @@
 #include "../src/internal.h"
 
 #define CGLTF_IMPLEMENTATION
-
 #include "../external/cgltf.h"
 
 #include <stdio.h>

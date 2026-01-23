@@ -9,6 +9,7 @@
 #include "acoustic/at.h"
 #include "acoustic/at_math.h"
 
+// API Type definitions
 struct AT_Scene {
     AT_Source *sources;
     AT_AABB world_AABB;
@@ -24,5 +25,33 @@ struct AT_Model {
     size_t vertex_count;
     size_t index_count;
 };
+
+struct AT_Simulation {
+    AT_Voxel *voxel_grid;
+    AT_Ray *rays;
+    AT_Vec3 origin;
+    AT_Vec3 dimensions;
+    AT_Vec3 grid_dimensions;
+    float voxel_size;
+    uint32_t num_rays;
+    float bin_width;
+    uint8_t fps;
+};
+
+// Private Types
+typedef struct {
+    AT_Vec3 origin;
+    AT_Vec3 direction;
+    float energy;
+    float total_distance;
+    uint32_t ray_id;
+    uint32_t bounce_count;
+} AT_Ray;
+
+typedef struct {
+    AT_Vec3 position;
+    AT_Vec3 normal;
+    float t;
+} AT_RayHit;
 
 #endif // AT_INTERAL_H
