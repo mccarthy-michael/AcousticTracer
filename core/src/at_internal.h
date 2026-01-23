@@ -9,7 +9,29 @@
 #include "acoustic/at.h"
 #include "acoustic/at_math.h"
 
-// API Type definitions
+// Private Types (typedef + define)
+typedef struct {
+    AT_Vec3 origin;
+    AT_Vec3 direction;
+    float energy;
+    float total_distance;
+    uint32_t ray_id;
+    uint32_t bounce_count;
+} AT_Ray;
+
+typedef struct {
+    AT_Vec3 position;
+    AT_Vec3 normal;
+    float t;
+} AT_RayHit;
+
+typedef struct {
+    float *items; //bins
+    size_t count;
+    size_t capacity;
+} AT_Voxel;
+
+// API Type definitions (just struct definitions, theyre already typedefed when forward declaring)
 struct AT_Scene {
     AT_Source *sources;
     AT_AABB world_AABB;
@@ -38,20 +60,6 @@ struct AT_Simulation {
     uint8_t fps;
 };
 
-// Private Types
-typedef struct {
-    AT_Vec3 origin;
-    AT_Vec3 direction;
-    float energy;
-    float total_distance;
-    uint32_t ray_id;
-    uint32_t bounce_count;
-} AT_Ray;
 
-typedef struct {
-    AT_Vec3 position;
-    AT_Vec3 normal;
-    float t;
-} AT_RayHit;
 
 #endif // AT_INTERAL_H
