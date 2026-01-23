@@ -1,4 +1,4 @@
-#include "acoustic/at_ray.h"
+#include "../src/at_ray.h"
 
 #define EPSILON 1e-6f
 
