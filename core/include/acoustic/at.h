@@ -1,3 +1,6 @@
+/** \file
+    \brief The libraries public types and functions
+*/
 #ifndef AT_H
 #define AT_H
 
@@ -9,42 +12,54 @@ typedef struct AT_Model AT_Model;
 typedef struct AT_Scene AT_Scene;
 typedef struct AT_Simulation AT_Simulation;
 
+/** \brief Defines possible result types.
+ */
 typedef enum {
-    AT_OK = 0,
-    AT_ERR_INVALID_ARGUMENT,
-    AT_ERR_ALLOC_ERROR,
+  AT_OK = 0,               /**< Function executed successfully. */
+  AT_ERR_INVALID_ARGUMENT, /**< Incorrect arguments were given to the function.
+                            */
+  AT_ERR_ALLOC_ERROR,      /**< Memory allocation failed. */
 } AT_Result;
 
+/** \brief Defines possible material types.
+ */
 typedef enum {
     AT_MATERIAL_CONCRETE,
     AT_MATERIAL_PLASTIC,
     AT_MATERIAL_WOOD
 } AT_Material;
 
+/** \brief Groups the min and max of a voxel for AABB collision detection.
+ */
 typedef struct {
     AT_Vec3 min;
     AT_Vec3 max;
 } AT_AABB;
 
+/** \brief Groups the information required for the sound source.
+ */
 typedef struct {
     AT_Vec3 position;
     AT_Vec3 direction;
     float intensity; // relative to the source intensity
 } AT_Source;
 
+/** \brief Groups the scene config settings together.
+ */
 typedef struct {
-    const AT_Source *source;
-    uint32_t num_sources;
-    AT_Material material;
+  const AT_Source *source; /**< Dynamic array of AT_Source types. */
+  uint32_t num_sources;
+  AT_Material material; /**< Material of the room. */
 
-    // Borrowed: must remain valid for the entire lifetime of the scene
-    const AT_Model *environment;
+  // Borrowed: must remain valid for the entire lifetime of the scene
+  const AT_Model *environment; /**< Pointer to the room object. */
 } AT_SceneConfig;
 
+/** \brief The simulation's settings. */
 typedef struct {
-    float voxel_size; // Render resolution
-    uint32_t num_rays;
-    uint8_t fps; // Bin width is always one frame
+  float voxel_size; /**< The renderer's resolution. */
+  uint32_t num_rays;
+  uint8_t fps; // Bin width is always one frame
 } AT_Settings;
 
 // Model
@@ -57,6 +72,14 @@ void AT_model_destroy(
     AT_Model *model
 );
 
+/** \brief Calculates the min and max of a model for AABB collision.
+    \relates AT_AABB
+
+    \param out_aabb Pointer to an empty initialised AT_AABB.
+    \param model Pointer to the model.
+
+    \retval void
+*/
 void AT_model_to_AABB(
     AT_AABB *out_aabb,
     const AT_Model *model

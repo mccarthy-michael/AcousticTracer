@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.16.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>AcousticTracer: AT_Settings Struct Reference</title>
+<title>AcousticTracer: include/acoustic/at_scene.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,49 +65,60 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(function(){initNavTree('struct_a_t___settings.html','',''); });
+$(function(){initNavTree('at__scene_8h.html','',''); });
 </script>
 <div id="container">
 <div id="doc-content">
 <div class="header">
-  <div class="headertitle"><div class="title">AT_Settings Struct Reference</div></div>
+  <div class="headertitle"><div class="title">at_scene.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>The simulation's settings.  
- <a href="#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="at_8h_source.html">at.h</a>&gt;</code></p>
+<p><a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460" title="Groups the necessary information representing the scene.">AT_Scene</a> and related functions.  
+<a href="#details">More...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="at_8h_source.html">at.h</a>&quot;</code><br />
+</div>
+<p><a href="at__scene_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:a2efe21a213224b1ff27335451963762d" id="r_a2efe21a213224b1ff27335451963762d"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a2efe21a213224b1ff27335451963762d">voxel_size</a></td></tr>
-<tr class="memitem:a0df286c7872cfc50f8e7f637e1edf6b0" id="r_a0df286c7872cfc50f8e7f637e1edf6b0"><td class="memItemLeft"><a id="a0df286c7872cfc50f8e7f637e1edf6b0" name="a0df286c7872cfc50f8e7f637e1edf6b0"></a>
-uint32_t&#160;</td><td class="memItemRight"><b>num_rays</b></td></tr>
-<tr class="memitem:ac38a6d9f04915375958b86cf33828257" id="r_ac38a6d9f04915375958b86cf33828257"><td class="memItemLeft"><a id="ac38a6d9f04915375958b86cf33828257" name="ac38a6d9f04915375958b86cf33828257"></a>
-uint8_t&#160;</td><td class="memItemRight"><b>fps</b></td></tr>
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a396d9232cddc7c05799bdca43526a848" id="r_a396d9232cddc7c05799bdca43526a848"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a396d9232cddc7c05799bdca43526a848">AT_scene_destroy</a> (<a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460">AT_Scene</a> *scene)</td></tr>
+<tr class="memdesc:a396d9232cddc7c05799bdca43526a848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys an allocated <a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460" title="Groups the necessary information representing the scene.">AT_Scene</a>.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The simulation's settings. </p>
-</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Field Documentation</h2>
-<a id="a2efe21a213224b1ff27335451963762d" name="a2efe21a213224b1ff27335451963762d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2efe21a213224b1ff27335451963762d">&#9670;&#160;</a></span>voxel_size</h2>
+<div class="textblock"><p><a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460" title="Groups the necessary information representing the scene.">AT_Scene</a> and related functions. </p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="a396d9232cddc7c05799bdca43526a848" name="a396d9232cddc7c05799bdca43526a848"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a396d9232cddc7c05799bdca43526a848">&#9670;&#160;</a></span>AT_scene_destroy()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float AT_Settings::voxel_size</td>
+          <td class="memname">void AT_scene_destroy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460">AT_Scene</a> *</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The renderer's resolution. </p>
+
+<p>Destroys an allocated <a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460" title="Groups the necessary information representing the scene.">AT_Scene</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">scene</td><td>Pointer to an initialised <a class="el" href="at_8h.html#a77088b0fbcf9ae1f7c42b1acc2615460" title="Groups the necessary information representing the scene.">AT_Scene</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">void</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li>include/acoustic/<a class="el" href="at_8h_source.html">at.h</a></li>
-</ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div id="page-nav" class="page-nav-panel">
@@ -121,7 +132,7 @@ uint8_t&#160;</td><td class="memItemRight"><b>fps</b></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a href="struct_a_t___settings.html">AT_Settings</a></li>
+    <li class="navelem"><b>include</b></li><li class="navelem"><b>acoustic</b></li><li class="navelem"><a href="at__scene_8h.html">at_scene.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
   </ul>
 </div>

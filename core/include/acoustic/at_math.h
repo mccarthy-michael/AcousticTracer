@@ -1,5 +1,5 @@
 /** \file
-    \brief Declares public maths structs and helper functions.
+    \brief AT_Triangle, AT_Vec3 and related functions
 */
 
 #ifndef AT_MATH_H

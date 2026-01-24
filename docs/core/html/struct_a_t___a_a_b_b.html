@@ -73,6 +73,11 @@ $(function(){initNavTree('struct_a_t___a_a_b_b.html','',''); });
   <div class="headertitle"><div class="title">AT_AABB Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Groups the min and max of a voxel for AABB collision detection.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="at_8h_source.html">at.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
@@ -80,7 +85,61 @@ Data Fields</h2></td></tr>
 <a class="el" href="struct_a_t___vec3.html">AT_Vec3</a>&#160;</td><td class="memItemRight"><b>min</b></td></tr>
 <tr class="memitem:aa676a84914e5553308866398507846f1" id="r_aa676a84914e5553308866398507846f1"><td class="memItemLeft"><a id="aa676a84914e5553308866398507846f1" name="aa676a84914e5553308866398507846f1"></a>
 <a class="el" href="struct_a_t___vec3.html">AT_Vec3</a>&#160;</td><td class="memItemRight"><b>max</b></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-related" class="groupheader"><a id="related" name="related"></a>
+Related Symbols</h2></td></tr>
+<tr><td class="ititle" colspan="2"><p>(Note that these are not member symbols.) </p>
+</td></tr>
+<tr class="memitem:ae40957ebaef6024973a0e23ebd7efe66" id="r_ae40957ebaef6024973a0e23ebd7efe66"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ae40957ebaef6024973a0e23ebd7efe66">AT_model_to_AABB</a> (<a class="el" href="struct_a_t___a_a_b_b.html">AT_AABB</a> *out_aabb, const <a class="el" href="at_8h.html#a26b1caac87ae1449ad4f5c60892ffd57">AT_Model</a> *model)</td></tr>
+<tr class="memdesc:ae40957ebaef6024973a0e23ebd7efe66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the min and max of a model for AABB collision.  <br /></td></tr>
 </table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Groups the min and max of a voxel for AABB collision detection. </p>
+</div><a name="doc-related-members" id="doc-related-members"></a><h2 id="header-doc-related-members" class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="ae40957ebaef6024973a0e23ebd7efe66" name="ae40957ebaef6024973a0e23ebd7efe66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae40957ebaef6024973a0e23ebd7efe66">&#9670;&#160;</a></span>AT_model_to_AABB()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AT_model_to_AABB </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_a_t___a_a_b_b.html">AT_AABB</a> *</td>          <td class="paramname"><span class="paramname"><em>out_aabb</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="at_8h.html#a26b1caac87ae1449ad4f5c60892ffd57">AT_Model</a> *</td>          <td class="paramname"><span class="paramname"><em>model</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel related">related</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculates the min and max of a model for AABB collision. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">out_aabb</td><td>Pointer to an empty initialised <a class="el" href="struct_a_t___a_a_b_b.html" title="Groups the min and max of a voxel for AABB collision detection.">AT_AABB</a>. </td></tr>
+    <tr><td class="paramname">model</td><td>Pointer to the model.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">void</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>include/acoustic/<a class="el" href="at_8h_source.html">at.h</a></li>
 </ul>
