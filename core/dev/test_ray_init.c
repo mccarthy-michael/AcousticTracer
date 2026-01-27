@@ -14,7 +14,7 @@ int main()
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ray test");
 
-    AT_Ray ray = *AT_ray_init(
+    AT_Ray ray = AT_ray_init(
         (AT_Vec3){0.5f, 0.5, 1.0f},
         (AT_Vec3){0.0f, 0.0f, -1.0f},
         0

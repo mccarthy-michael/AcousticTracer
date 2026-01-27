@@ -48,7 +48,7 @@ int main()
 
     //init rays
     for (uint32_t i = 0; i < MAX_RAYS; i++) {
-        rays[i] = *AT_ray_init(
+        rays[i] = AT_ray_init(
             (AT_Vec3){0},
             (AT_Vec3){i*-0.03, 0.1f, -1.0f},
             i);
@@ -60,22 +60,18 @@ int main()
     //iterate rays
     for (uint32_t i = 0; i < MAX_RAYS; i++) {
         AT_Ray *ray = &rays[i];
-        uint32_t bounces = 0;
-        while (!ray->child) {
-            if (bounces > MAX_BOUNCE_COUNT) {
-                break;
-            };
+        while (true) {
+            AT_Ray closest = AT_ray_init((AT_Vec3){ FLT_MAX, FLT_MAX, FLT_MAX }, (AT_Vec3){0}, 0);
             bool intersects = false;
             for (uint32_t j = 0; j < t_count; j++) {
-                AT_Ray *res_ray = AT_ray_init((AT_Vec3){ FLT_MAX, FLT_MAX, FLT_MAX }, (AT_Vec3){0}, 0);
-                if(AT_ray_triangle_intersect(ray, &ts[j], res_ray)) intersects = true;
+                if(AT_ray_triangle_intersect(ray, &ts[j], &closest)) intersects = true;
             }
-            if (intersects) {
-                bounces++;
-                ray = ray->child;
-            } else {
-                break;
-            };
+            if (!intersects) break;
+            AT_Ray *child = malloc(sizeof(AT_Ray));
+            *child = closest;
+            child->child = NULL;
+            ray->child = child;
+            ray = ray->child;
         }
     }
 
@@ -150,5 +146,8 @@ int main()
     CloseWindow();
     free(ts);
     AT_model_destroy(model);
+    for (uint32_t i = 0; i < MAX_RAYS; i++) {
+       AT_ray_destroy(rays[i].child);
+    }
     return 0;
 }
