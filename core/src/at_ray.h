@@ -22,16 +22,17 @@ static inline AT_Ray AT_ray_init(
         .total_distance = 0.0f,
         .ray_id = ray_id,
         .bounce_count = 0,
+        .parent = malloc(sizeof(AT_Ray)),
     };
-    AT_da_init(&ray.hits);
 
     return ray;
 }
 
 //da wrapper
-static inline void AT_ray_add_hit(AT_Ray *ray, AT_RayHit hit)
+static inline void AT_ray_add_hit(AT_Ray *ray, const AT_Vec3 hit_pos, const AT_Vec3 hit_normal, const uint32_t ray_id)
 {
-    AT_da_append(&ray->hits, hit);
+    AT_Ray parent_ray = AT_ray_init(hit_pos, hit_normal, ray_id);
+    ray->parent = &parent_ray;
 }
 
 static inline AT_Vec3 AT_ray_at(const AT_Ray *ray, float t)
@@ -51,12 +52,12 @@ static inline AT_Vec3 AT_ray_reflect(AT_Vec3 incident,
 
 static inline void AT_ray_destroy(AT_Ray *ray)
 {
-    AT_da_free(&ray->hits);
+    free(ray->parent);
 }
 
 
 bool AT_ray_triangle_intersect(const AT_Ray *ray,
                                const AT_Triangle *triangle,
-                               AT_RayHit *out_hit);
+                               AT_Ray *out_ray);
 
 #endif // AT_RAY_H
