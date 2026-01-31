@@ -44,7 +44,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   async function register(email: any, password: any) {
-    await account.create(ID.unique(), email, password);
+    // await account.create(ID.unique(), email, password);
     await login(email, password);
   }
 

@@ -3,7 +3,7 @@ import { useUser } from "../lib/context/user";
 import UploadForm from "../components/UploadForm";
 import "./Home.css";
 
-export default function Home() {
+export default function Dashboard() {
   const { logout, current } = useUser();
   const [isUploadOpen, setIsUploadOpen] = useState(true);
 

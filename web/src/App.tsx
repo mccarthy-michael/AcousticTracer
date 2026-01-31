@@ -1,7 +1,6 @@
 import { UserProvider, useUser } from "./lib/context/user";
 import { Routes, Route, Navigate } from "react-router";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
+import { Dashboard, Login } from "./pages/index.ts";
 import "./Login.css";
 import "./App.css";
 
@@ -22,10 +21,11 @@ function AppContent() {
       ) : (
         <>
           <Route path="/login" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </>
       )}
+      Home
     </Routes>
   );
 }
