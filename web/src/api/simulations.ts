@@ -7,6 +7,7 @@ const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID_SIMULATIONS;
 
 export interface SimulationPayload {
   file: File;
+  name: string;
   voxel_size: number;
   floor_material: string;
   wall_material: string;
@@ -34,12 +35,12 @@ export async function createSimulation(payload: SimulationPayload) {
     console.log(uploadedFile);
 
     console.log("Creating database entry...");
-    // USING NEW API: createRow
     const row = await tablesDB.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ID,
       rowId: ID.unique(),
       data: {
+        name: payload.name,
         status: "pending",
         user_id: user.$id, // Link to current user
         input_file_id: uploadedFile.$id,
@@ -76,6 +77,23 @@ export async function listSimulations() {
     });
   } catch (err) {
     console.error(err);
-    return { rows: [],total: 0 };
+    return { rows: [], total: 0 };
   }
+}
+
+export async function getSimulation(id: string) {
+  try {
+    return await tablesDB.getRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_ID,
+      rowId: id,
+    });
+  } catch (error) {
+    console.error("Get Simulation Failed:", error);
+    throw error;
+  }
+}
+
+export function getFileView(fileId: string) {
+  return storage.getFileView(BUCKET_ID, fileId);
 }

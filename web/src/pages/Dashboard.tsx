@@ -9,11 +9,13 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [isUploadOpen, setIsUploadOpen] = useState(true);
   const [simulations, setSimulations] = useState<any[]>([]);
+
+  const loadData = async () => {
+    const data = await listSimulations();
+    setSimulations(data.rows);
+  };
+
   useEffect(() => {
-    async function loadData() {
-      const data = await listSimulations();
-      setSimulations(data.rows);
-    }
     loadData();
   }, []);
 
@@ -32,6 +34,7 @@ export default function Dashboard() {
             <thead>
               <tr>
                 <th>Date</th>
+                <th>Name</th>
                 <th>Status</th>
                 <th>Voxel Size</th>
                 <th>FPS</th>
@@ -57,6 +60,7 @@ export default function Dashboard() {
                     style={{ cursor: "pointer" }}
                   >
                     <td>{new Date(sim.$createdAt).toLocaleString()}</td>
+                    <td>{sim.name}</td>
                     <td>
                       <span className={`status-badge status-${sim.status}`}>
                         {sim.status}
@@ -80,7 +84,14 @@ export default function Dashboard() {
           )}
         </div>
 
-        {isUploadOpen && <UploadForm onClose={() => setIsUploadOpen(false)} />}
+        {isUploadOpen && (
+          <UploadForm
+            onClose={() => {
+              setIsUploadOpen(false);
+              loadData();
+            }}
+          />
+        )}
       </main>
     </div>
   );

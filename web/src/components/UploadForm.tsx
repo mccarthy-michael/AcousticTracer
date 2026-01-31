@@ -13,6 +13,7 @@ interface UploadFormProps {
 export default function UploadForm({ onClose }: UploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
+    name: "Room",
     voxel_size: 0.1,
     floor_material: "concrete",
     wall_material: "plaster",
@@ -33,13 +34,14 @@ export default function UploadForm({ onClose }: UploadFormProps) {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!file) {
-      alert("Please select a GLB/GLTF file");
+      alert("Please select a GLB file");
       return;
     }
 
     try {
       console.log("Submitting simulation:", { file, ...formData });
       await createSimulation({ file, ...formData });
+      if (onClose) onClose();
     } catch (err) {
       console.error("Failed to create simulation", err);
       alert("Simulation creation failed (check console)");
@@ -61,18 +63,23 @@ export default function UploadForm({ onClose }: UploadFormProps) {
             </button>
           )}
         </div>
-
         <form onSubmit={handleSubmit} className="form-stack">
           {/* File Upload */}
-          <div>
-            <label className="label">Room Model (.glb/.gltf)</label>
-            <input
-              type="file"
-              accept=".glb,.gltf"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              required
-              className="input"
-            />
+          <div className="row">
+            <div>
+              <label className="label">Name</label>
+              <input type="text" className="input" />
+            </div>
+            <div>
+              <label className="label">Room Model (.glb)</label>
+              <input
+                type="file"
+                accept=".glb,.gltf"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                required
+                className="input"
+              />
+            </div>
           </div>
 
           {/* Simulation Config */}
@@ -185,9 +192,7 @@ export default function UploadForm({ onClose }: UploadFormProps) {
             </div>
           </div>
 
-          <button type="submit" className="button w-full mt-2">
-            Start Simulation
-          </button>
+          <button className="button w-full mt-2">Start Simulation</button>
         </form>
       </div>
     </div>

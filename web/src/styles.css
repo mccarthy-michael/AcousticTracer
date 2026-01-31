@@ -440,3 +440,21 @@ h2,
   align-items: center;
   gap: 8px;
 }
+
+/* ==========================================================================
+   8. Canvas 
+   ========================================================================== */
+
+.canvas-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+}
