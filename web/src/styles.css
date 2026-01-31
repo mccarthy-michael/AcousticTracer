@@ -46,12 +46,11 @@ body {
 }
 
 /* ==========================================================================
-   2. TYPOGRAPHY & UTILITIES
+   2.UTILITIES
    ========================================================================== */
 h1,
 .h1 {
   margin: 0;
-  font-size: 24px;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -172,15 +171,24 @@ h2,
 .home-header {
   background-color: var(--bg-primary);
   padding: 2rem;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+}
+
+.home-header > :first-child {
+  justify-self: start;
+}
+
+.home-header > :last-child {
+  justify-self: end;
 }
 
 .home-welcome {
   font-size: 24px;
   font-weight: 700;
   text-transform: capitalize;
+  margin-bottom: 0;
 }
 
 .home-main {

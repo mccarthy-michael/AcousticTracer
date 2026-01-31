@@ -1,6 +1,6 @@
 import { UserProvider, useUser } from "./lib/context/user";
 import { Routes, Route, Navigate } from "react-router";
-import { Dashboard, Login } from "./pages/index.ts";
+import { Dashboard, Login, Scene } from "./pages/index.ts";
 
 function AppContent() {
   const { current, isLoading } = useUser();
@@ -20,6 +20,7 @@ function AppContent() {
         <>
           <Route path="/login" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/scene/:id" element={<Scene />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </>
       )}

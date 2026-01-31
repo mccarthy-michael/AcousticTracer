@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { useUser } from "../lib/context/user";
 import UploadForm from "../components/UploadForm";
 import { listSimulations } from "../api/simulations";
 
 export default function Dashboard() {
   const { logout, current } = useUser();
+  const navigate = useNavigate();
   const [isUploadOpen, setIsUploadOpen] = useState(true);
   const [simulations, setSimulations] = useState<any[]>([]);
   useEffect(() => {
@@ -15,12 +17,11 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-return (
+  return (
     <div className="home-container">
       <header className="home-header">
-        <span className="home-welcome">
-          Welcome, {current?.name}
-        </span>
+        <h2 className="home-welcome">Welcome, {current?.name}</h2>
+        <h1>Acoustic Tracer</h1>
         <button className="button" onClick={logout}>
           Logout
         </button>
@@ -50,7 +51,11 @@ return (
                 </tr>
               ) : (
                 simulations.map((sim) => (
-                  <tr key={sim.$id}>
+                  <tr
+                    key={sim.$id}
+                    onClick={() => navigate(`/scene/${sim.$id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <td>{new Date(sim.$createdAt).toLocaleString()}</td>
                     <td>
                       <span className={`status-badge status-${sim.status}`}>
