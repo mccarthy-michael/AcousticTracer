@@ -66,12 +66,16 @@ export async function createSimulation(payload: SimulationPayload) {
 export async function listSimulations() {
   try {
     const user = await account.get();
-    return await tablesDB.listRows(DATABASE_ID, TABLE_ID, [
-      Query.equal("user_id", user.$id),
-      Query.orderDesc("$createdAt"),
-    ]);
+    return await tablesDB.listRows({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_ID,
+      queries: [
+        Query.equal("user_id", user.$id),
+        Query.orderDesc("$createdAt"),
+      ],
+    });
   } catch (err) {
     console.error(err);
-    return { documents: [] };
+    return { rows: [],total: 0 };
   }
 }

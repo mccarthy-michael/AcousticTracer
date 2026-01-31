@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-family:
     system-ui,
     -apple-system,
@@ -10,8 +10,13 @@
     sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #111827;
-  background: #ffffff;
+
+  /* Dark Theme Colors based on screenshot */
+  --bg-primary: #2d2d39; /* Deep purple/grey background */
+  --bg-card: #3b3b3b; /* Row/Card background */
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
+  --accent: #fbbf24; /* Yellow accent */
 }
 
 * {
@@ -20,7 +25,8 @@
 
 body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 20% 0%, #eef2ff 0%, #fff 40%);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .container {
@@ -177,7 +183,3 @@ body {
 .mt-2 {
   margin-top: 8px;
 }
-
-
-
-

@@ -33,7 +33,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   async function login(email: any, password: any) {
-    await account.createEmailPasswordSession(email, password);
+    const result = await account.createEmailPasswordSession({
+      email: email,
+      password: password,
+    });
+
+    console.log(result);
     const loggedIn = await account.get();
     setUser(loggedIn);
   }
@@ -44,7 +49,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   async function register(email: any, password: any) {
-    // await account.create(ID.unique(), email, password);
+
+    try {
+      const user = await account.create({
+        userId: ID.unique(),
+        email: email,
+        password: password,
+      });
+      console.log(user);
+    } catch (e) {
+      console.error(e);
+    }
     await login(email, password);
   }
 
