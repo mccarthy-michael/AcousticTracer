@@ -1,8 +1,6 @@
 import { UserProvider, useUser } from "./lib/context/user";
 import { Routes, Route, Navigate } from "react-router";
 import { Dashboard, Login } from "./pages/index.ts";
-import "./Login.css";
-import "./App.css";
 
 function AppContent() {
   const { current, isLoading } = useUser();

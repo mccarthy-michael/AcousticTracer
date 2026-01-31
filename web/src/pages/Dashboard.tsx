@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../lib/context/user";
 import UploadForm from "../components/UploadForm";
-import "./Home.css";
-import "./Dashboard.css";
 import { listSimulations } from "../api/simulations";
 
 export default function Dashboard() {
@@ -17,25 +15,17 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  return (
+return (
     <div className="home-container">
       <header className="home-header">
         <span className="home-welcome">
-          Welcome, {current?.email.toLowerCase()}
+          Welcome, {current?.name}
         </span>
         <button className="button" onClick={logout}>
           Logout
         </button>
       </header>
-
       <main className="home-main">
-        {!isUploadOpen && (
-          <div className="upload-trigger-container">
-            <button className="button" onClick={() => setIsUploadOpen(true)}>
-              Create new simulation
-            </button>
-          </div>
-        )}
         <div className="sim-table-container">
           <table className="sim-table">
             <thead>
@@ -76,6 +66,13 @@ export default function Dashboard() {
               )}
             </tbody>
           </table>
+          {!isUploadOpen && (
+            <div className="upload-trigger-container">
+              <button className="button" onClick={() => setIsUploadOpen(true)}>
+                Create new simulation
+              </button>
+            </div>
+          )}
         </div>
 
         {isUploadOpen && <UploadForm onClose={() => setIsUploadOpen(false)} />}

@@ -6,6 +6,7 @@ export default function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -13,7 +14,7 @@ export default function Login() {
     setError("");
     try {
       if (isRegistering) {
-        await register(email, password);
+        await register(email, password, name);
       } else {
         await login(email, password);
       }
@@ -30,6 +31,18 @@ export default function Login() {
         </h1>
 
         <form onSubmit={handleSubmit} className="login-form">
+          {isRegistering && <div className="form-group">
+            <label htmlFor="email">Name</label>
+            <input
+              id="name"
+              className="input"
+              type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>}
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input

@@ -5,7 +5,6 @@
 // - POST /api/simulations (multipart)
 import { useState } from "react";
 import { createSimulation } from "../api/simulations";
-import "./UploadForm.css";
 
 interface UploadFormProps {
   onClose?: () => void;
@@ -39,10 +38,6 @@ export default function UploadForm({ onClose }: UploadFormProps) {
     }
 
     try {
-      // Construct the payload matching docs/communication_standards.md
-      // Note: In a real app, this would likely be a FormData object with the file
-      // and a JSON string for the metadata, or two separate calls.
-      // For now, we mock the call.
       console.log("Submitting simulation:", { file, ...formData });
       await createSimulation({ file, ...formData });
     } catch (err) {

@@ -13,7 +13,7 @@ interface UserContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -48,13 +48,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
-  async function register(email: any, password: any) {
+  async function register(email: any, password: any, name: any) {
 
     try {
       const user = await account.create({
         userId: ID.unique(),
         email: email,
         password: password,
+        name: name,
       });
       console.log(user);
     } catch (e) {
