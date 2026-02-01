@@ -94,6 +94,22 @@ export async function getSimulation(id: string) {
   }
 }
 
+export async function deleteRow(id: string){
+  try{
+    return await tablesDB.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_ID,
+      rowId: id,
+    });
+  }catch (error){
+    console.error("Delete Row failed:", error)
+    throw error
+  }
+}
+
+
 export function getFileView(fileId: string) {
-  return storage.getFileView(BUCKET_ID, fileId);
+  return storage.getFileView({
+    bucketId: BUCKET_ID,
+    fileId: fileId});
 }

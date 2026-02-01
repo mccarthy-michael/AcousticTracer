@@ -42,16 +42,14 @@ export default function Scene() {
         <div style={{ width: "64px" }}></div>
       </header>
       <main
-        className="home-main"
-        // style={{ height: "calc(100vh - 80px)", position: "relative" }}
-      >
-        <div className="canvas-card">
+        className="home-main">
+        {/* <div className="canvas-card"> */}
           {loading && <div className="text-secondary">Loading scene...</div>}
           {error && <div className="error-message">{error}</div>}
           {!loading && !error && modelUrl && (
             <SceneCanvas modelUrl={modelUrl} />
           )}
-        </div>
+        {/* </div> */}
       </main>
     </div>
   );

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useUser } from "../lib/context/user";
 import UploadForm from "../components/UploadForm";
-import { listSimulations } from "../api/simulations";
+import { listSimulations, deleteRow } from "../api/simulations";
 
 export default function Dashboard() {
   const { logout, current } = useUser();
@@ -19,6 +19,14 @@ export default function Dashboard() {
     loadData();
   }, []);
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteRow(id);
+      loadData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <div className="home-container">
       <header className="home-header">
@@ -70,6 +78,19 @@ export default function Dashboard() {
                     <td>{sim.fps}</td>
                     <td>{sim.num_rays.toLocaleString()}</td>
                     <td>{sim.num_iterations}</td>
+                    <td>
+                      {" "}
+                      <button
+                        className="close-button"
+                        aria-label="Close"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(sim.$id);
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
