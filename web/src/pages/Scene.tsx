@@ -43,13 +43,13 @@ export default function Scene() {
       </header>
       <main
         className="home-main">
-        {/* <div className="canvas-card"> */}
+        <div className="canvas-card">
           {loading && <div className="text-secondary">Loading scene...</div>}
           {error && <div className="error-message">{error}</div>}
           {!loading && !error && modelUrl && (
             <SceneCanvas modelUrl={modelUrl} />
           )}
-        {/* </div> */}
+        </div>
       </main>
     </div>
   );
