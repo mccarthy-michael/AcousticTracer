@@ -30,8 +30,8 @@ export default function Scene() {
   }, [id]);
 
   return (
-    <div className="home-container">
-      <header className="home-header">
+    <div>
+      <header>
         <button
           className="button button-ghost"
           onClick={() => navigate("/dashboard")}
@@ -41,8 +41,7 @@ export default function Scene() {
         <h1 className="h1">{id ? `Simulation View` : "Scene Viewer"}</h1>
         <div style={{ width: "64px" }}></div>
       </header>
-      <main
-        className="home-main">
+      <main>
         <div className="canvas-card">
           {loading && <div className="text-secondary">Loading scene...</div>}
           {error && <div className="error-message">{error}</div>}

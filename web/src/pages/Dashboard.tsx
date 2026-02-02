@@ -28,15 +28,15 @@ export default function Dashboard() {
     }
   };
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <h2 className="home-welcome">Welcome, {current?.name}</h2>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h2 className="dashboard-welcome">Welcome, {current?.name}</h2>
         <h1>Acoustic Tracer</h1>
         <button className="button" onClick={logout}>
           Logout
         </button>
       </header>
-      <main className="home-main">
+      <main className="dashboard-main">
         <div className="sim-table-container">
           <table className="sim-table">
             <thead>
@@ -104,7 +104,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-
         {isUploadOpen && (
           <UploadForm
             onClose={() => {
