@@ -49,8 +49,8 @@ export default function UploadForm({ onClose }: UploadFormProps) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="card modal-content">
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center backdrop-blur-sm z-1000 p-4">
+      <div className="bg-bg-card rounded-xl p-6  modal-content shadow-md">
         <div className="upload-form-header">
           <h3 className="h1 upload-form-title">New Simulation</h3>
           {onClose && (

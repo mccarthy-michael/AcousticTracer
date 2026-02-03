@@ -30,18 +30,17 @@ export default function Scene() {
   }, [id]);
 
   return (
-    <div>
-      <header>
+    <div className="h-screen flex-col">
+      <header className="dashboard-header">
         <button
           className="button button-ghost"
           onClick={() => navigate("/dashboard")}
         >
           ← Back
         </button>
-        <h1 className="h1">{id ? `Simulation View` : "Scene Viewer"}</h1>
-        <div style={{ width: "64px" }}></div>
+        <h1 className="h1">{id ? "Simulation View" : "Scene Viewer"}</h1>
       </header>
-      <main>
+      <main className="canvas-main">
         <div className="canvas-card">
           {loading && <div className="text-secondary">Loading scene...</div>}
           {error && <div className="error-message">{error}</div>}
