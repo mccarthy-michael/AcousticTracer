@@ -158,8 +158,8 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-5 align-middle text-text-secondary leading-snug rounded-r-lg text-right">
                         <button
-                          className="bg-transparent border-none text-text-secondary text-2xl cursor-pointer p-1 leading-none rounded hover:text-danger hover:bg-white/10 transition-colors"
-                          aria-label="Close"
+                          className="bg-transparent border-none text-text-secondary text-2xl cursor-pointer p-1 leading-none rounded hover:text-danger hover:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-button-primary focus-visible:outline-offset-2"
+                          aria-label="Delete"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(sim.$id);
