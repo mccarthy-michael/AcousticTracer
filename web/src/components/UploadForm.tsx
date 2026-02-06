@@ -34,7 +34,7 @@ export default function UploadForm({ onClose }: UploadFormProps) {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!file) {
-      alert("Please select a GLB file");
+      alert("Only GLB file type accepted");
       return;
     }
 
@@ -81,13 +81,31 @@ export default function UploadForm({ onClose }: UploadFormProps) {
               <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wide">
                 Room Model (.glb)
               </label>
-              <input
-                type="file"
-                accept=".glb,.gltf"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                required
-                className="w-full py-2.5 px-3 border border-border-primary bg-input-bg text-text-primary rounded-lg text-sm transition-colors focus:outline-none focus:border-button-primary"
-              />
+              <div className="relative">
+                <input
+                  type="file"
+                  id="model-upload"
+                  accept=".glb"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  required
+                  className="hidden"
+                />
+                <label
+                  htmlFor="model-upload"
+                  className="flex items-center w-full py-2 px-2 border border-border-primary bg-input-bg rounded-lg text-sm transition-colors cursor-pointer hover:border-button-primary"
+                >
+                  <span className="bg-button-primary text-white px-3 py-1.5 rounded text-xs mr-3 font-medium hover:bg-opacity-90 transition-opacity">
+                    Browse
+                  </span>
+                  <span
+                    className={`truncate ${
+                      !file ? "text-text-secondary" : "text-text-primary"
+                    }`}
+                  >
+                    {file ? file.name : "No file selected"}
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 
