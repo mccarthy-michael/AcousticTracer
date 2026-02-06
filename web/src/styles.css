@@ -16,3 +16,9 @@
   --color-link: #60a5fa;
   --color-hover-bg: #444444;
 }
+
+/* Global Styles - Single Source of Truth for Backgrounds */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}

@@ -49,10 +49,12 @@ export default function UploadForm({ onClose }: UploadFormProps) {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center backdrop-blur-sm z-1000 p-4">
-      <div className="bg-bg-card rounded-xl p-6  modal-content shadow-md">
-        <div className="flex justify-between items-center mb-8 pb-4 border-b">
-          <h3 className="m-0 text-2xl font-semibold">New Simulation</h3>
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-1000 p-4 bg-black/75">
+      <div className="bg-bg-card rounded-xl p-6 shadow-md w-[550px] max-h-[90vh] overflow-y-auto border border-border-primary">
+        <div className="flex justify-between items-center mb-8 pb-4 border-b border-border-primary">
+          <h3 className="m-0 text-lg font-semibold text-text-primary">
+            New Simulation
+          </h3>
           {onClose && (
             <button
               onClick={onClose}
