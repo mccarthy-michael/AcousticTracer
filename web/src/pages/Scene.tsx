@@ -28,39 +28,57 @@ export default function Scene() {
     roof_material: "acoustic_tile",
   });
 
-  if (id === "new") {
-    useEffect(() => {
-      async function load() {
-        if (!id) return;
+  useEffect(() => {
+    async function load() {
+      if (!id) return;
 
-        if (id === "new") {
-          const fileID = searchParams.get("fileId");
-          if (!fileID) {
-            setError("No file specified for new sim");
-            console.log("error");
-            setLoading(false);
-            return;
-          }
-          try {
-            const url = getFileView(fileID);
-            setModelUrl(url);
-
-            setSimDetails({
-              name: searchParams.get("name") || "New Simulation",
-              status: "staging",
-              input_file_id: fileID,
-            });
-          } catch (err: any) {
-            setError(err.message);
-            console.log(error);
-          } finally {
-            setLoading(false);
-          }
+      if (id === "new") {
+        const fileID = searchParams.get("fileId");
+        if (!fileID) {
+          setError("No file specified for new sim");
+          console.log("error");
+          setLoading(false);
           return;
         }
+        try {
+          const url = getFileView(fileID);
+          setModelUrl(url);
+
+          setSimDetails({
+            name: searchParams.get("name") || "New Simulation",
+            status: "staging",
+            input_file_id: fileID,
+          });
+        } catch (err: any) {
+          setError(err.message);
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+        return;
       }
-    load()}, [id, searchParams]);
-  }
+      
+      try{
+        setLoading(true)
+        const sim = await getSimulation(id)
+        setSimDetails(sim)
+        if (sim.voxel_size){
+          setConfig((prev) => ({...prev, voxel_size: sim.voxel_size }))
+        }
+        if (sim.input_file_id){
+          const url = getFileView(sim.input_file_id)
+          setModelUrl(url)
+        }
+      }catch(err:any) {
+        setError(err.message || "Failed to load Sim")
+        console.log(error)
+      }finally{
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id, searchParams]);
+
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary overflow-hidden">
