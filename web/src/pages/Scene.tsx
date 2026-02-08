@@ -110,7 +110,7 @@ export default function Scene() {
           )}
           {!loading && !error && modelUrl && (
             <div className="w-full h-full relative">
-              <SceneCanvas modelUrl={modelUrl} />
+              <SceneCanvas modelUrl={modelUrl} onBoundsCalculated={setBounds} />
             </div>
           )}
         </div>
