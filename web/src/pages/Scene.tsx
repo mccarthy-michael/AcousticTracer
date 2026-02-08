@@ -1,36 +1,40 @@
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { getSimulation, getFileView } from "../api/simulations";
 import SceneCanvas from "../r3f/SceneCanvas";
 import SimDetails from "../components/SimDetails";
-
+import * as THREE from "three"
 export default function Scene() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [modelUrl, setModelUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [simDetails, setSimDetails] = useState<any>(null);
 
-  useEffect(() => {
-    async function load() {
-      if (!id) return;
-      try {
-        setLoading(true);
-        const sim = await getSimulation(id);
-        setSimDetails(sim);
-        if (sim.input_file_id) {
-          const url = getFileView(sim.input_file_id);
-          setModelUrl(url);
-        }
-      } catch (err: any) {
-        setError(err.message || "Failed to load simulation");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [id]);
+  const { id } = useParams();
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+
+  // Different data states
+  const [modelUrl, setModelUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [simDetails, setSimDetails] = useState<any>(null)
+
+  // The staging state will change later
+  const [bounds, setBounds] = useState<THREE.Box3 | null>(null)
+  const [showGrid, setShowGrid] = useState(true)
+  const [config, setConfig] = useState({
+      voxel_size: 0.5,
+      fps: 60,
+      num_rays: 10000,
+      num_iterations: 100,
+      floor_material: "concrete",
+      wall_material: "plaster",
+      roof_material: "acoustic_tile",
+  })
+  
+  if (id === "new"){
+    const fileID = searchParams.get("fileId")
+    const name = searchParams.get("name")
+  } else {
+    const simulationID = id
+  }
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary overflow-hidden">
