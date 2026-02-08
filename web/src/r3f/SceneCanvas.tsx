@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Stage, OrbitControls, Gltf, useGLTF } from "@react-three/drei";
+import { OrbitControls, Center, useGLTF, Bounds } from "@react-three/drei";
 import { Suspense, useCallback, useEffect } from "react";
 import * as THREE from "three";
 
@@ -26,22 +26,30 @@ function Model({
   return <primitive object={scene} />;
 }
 
-export default function SceneCanvas({ modelUrl, onBoundsCalculated, }: SceneCanvasProps) {
+export default function SceneCanvas({
+  modelUrl,
+  onBoundsCalculated,
+}: SceneCanvasProps) {
   const handleBounds = useCallback(
-    (box: THREE.Box3) =>{
-      if (onBoundsCalculated){
-        onBoundsCalculated(box)
+    (box: THREE.Box3) => {
+      if (onBoundsCalculated) {
+        onBoundsCalculated(box);
       }
-    }, [onBoundsCalculated]
-  )
+    },
+    [onBoundsCalculated],
+  );
   if (!modelUrl) return null;
 
   return (
-    <Canvas camera={{ position: [5, 5, 5], fov: 90 }}>
+    <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
       <ambientLight intensity={0.7} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <Suspense fallback={null}>
-        <Model url={modelUrl} onLoad={handleBounds} />
+        <Bounds fit clip observe margin={2}>
+          <Center>
+            <Model url={modelUrl} onLoad={handleBounds} />
+          </Center>
+        </Bounds>
       </Suspense>
       <OrbitControls makeDefault />
     </Canvas>

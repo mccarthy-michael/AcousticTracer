@@ -10,11 +10,17 @@ export default function Scene() {
   const navigate = useNavigate();
 
   // Different data states
-  const [modelUrl, setModelUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [simDetails, setSimDetails] = useState<any>(null);
-
+  const [viewState, setViewState] = useState<{
+    loading: boolean;
+    error: string | null;
+    modelUrl: string | null;
+    simDetails: any;
+  }>({
+    loading: true,
+    error: null,
+    modelUrl: null,
+    simDetails: null,
+  });
   // The staging state will change later
   const [bounds, setBounds] = useState<THREE.Box3 | null>(null);
   const [showGrid, setShowGrid] = useState(true);
@@ -32,52 +38,49 @@ export default function Scene() {
     async function load() {
       if (!id) return;
 
-      if (id === "new") {
-        const fileID = searchParams.get("fileId");
-        if (!fileID) {
-          setError("No file specified for new sim");
-          console.log("error");
-          setLoading(false);
-          return;
-        }
-        try {
-          const url = getFileView(fileID);
-          setModelUrl(url);
+      try {
+        let url: string | null = null;
+        let details: any = null;
 
-          setSimDetails({
+        if (id === "new") {
+          const fileID = searchParams.get("fileId");
+          if (!fileID) throw new Error("No file specified for new sim");
+
+          url = getFileView(fileID);
+          details = {
             name: searchParams.get("name") || "New Simulation",
             status: "staging",
             input_file_id: fileID,
-          });
-        } catch (err: any) {
-          setError(err.message);
-          console.log(error);
-        } finally {
-          setLoading(false);
+          };
+        } else {
+          details = await getSimulation(id);
+          if (details.input_file_id) {
+            url = getFileView(details.input_file_id);
+          }
+          // Update config state here if needed
+          if (details.voxel_size) {
+            setConfig((prev) => ({ ...prev, voxel_size: details.voxel_size }));
+          }
         }
-        return;
-      }
-      
-      try{
-        setLoading(true)
-        const sim = await getSimulation(id)
-        setSimDetails(sim)
-        if (sim.voxel_size){
-          setConfig((prev) => ({...prev, voxel_size: sim.voxel_size }))
-        }
-        if (sim.input_file_id){
-          const url = getFileView(sim.input_file_id)
-          setModelUrl(url)
-        }
-      }catch(err:any) {
-        setError(err.message || "Failed to load Sim")
-        console.log(error)
-      }finally{
-        setLoading(false);
+
+        setViewState({
+          loading: false,
+          error: null,
+          modelUrl: url,
+          simDetails: details,
+        });
+      } catch (err: any) {
+        setViewState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err.message,
+        }));
       }
     }
     load();
   }, [id, searchParams]);
+
+  const { loading, error, modelUrl, simDetails: details} = viewState;
 
 
   return (
@@ -94,7 +97,7 @@ export default function Scene() {
         </h1>
 
         {/* Info Icon & Dropdown - Top Right */}
-        <SimDetails simDetails={simDetails} />
+        <SimDetails simDetails={details} />
       </header>
       <main className="flex-1 p-4 w-full h-full min-h-0 relative">
         <div className="w-full h-full bg-bg-card rounded-xl shadow-md overflow-hidden relative flex items-center justify-center border border-border-primary">
