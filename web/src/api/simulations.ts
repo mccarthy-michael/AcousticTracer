@@ -94,22 +94,34 @@ export async function getSimulation(id: string) {
   }
 }
 
-export async function deleteRow(id: string){
-  try{
+export async function deleteRow(id: string) {
+  try {
     return await tablesDB.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ID,
       rowId: id,
     });
-  }catch (error){
-    console.error("Delete Row failed:", error)
-    throw error
+  } catch (error) {
+    console.error("Delete Row failed:", error);
+    throw error;
   }
 }
-
 
 export function getFileView(fileId: string) {
   return storage.getFileView({
     bucketId: BUCKET_ID,
-    fileId: fileId});
+    fileId: fileId,
+  });
+}
+
+export async function deleteFile(fileId: string) {
+  try {
+    return await storage.deleteFile({
+      bucketId: BUCKET_ID,
+      fileId: fileId,
+    });
+  } catch (error) {
+    console.error("Delete file failed,", error);
+    throw error;
+  }
 }
