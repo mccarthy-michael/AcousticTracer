@@ -3,37 +3,63 @@ import { useEffect, useState } from "react";
 import { getSimulation, getFileView } from "../api/simulations";
 import SceneCanvas from "../r3f/SceneCanvas";
 import SimDetails from "../components/SimDetails";
-import * as THREE from "three"
+import * as THREE from "three";
 export default function Scene() {
-
   const { id } = useParams();
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Different data states
-  const [modelUrl, setModelUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [simDetails, setSimDetails] = useState<any>(null)
+  const [modelUrl, setModelUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [simDetails, setSimDetails] = useState<any>(null);
 
   // The staging state will change later
-  const [bounds, setBounds] = useState<THREE.Box3 | null>(null)
-  const [showGrid, setShowGrid] = useState(true)
+  const [bounds, setBounds] = useState<THREE.Box3 | null>(null);
+  const [showGrid, setShowGrid] = useState(true);
   const [config, setConfig] = useState({
-      voxel_size: 0.5,
-      fps: 60,
-      num_rays: 10000,
-      num_iterations: 100,
-      floor_material: "concrete",
-      wall_material: "plaster",
-      roof_material: "acoustic_tile",
-  })
-  
-  if (id === "new"){
-    const fileID = searchParams.get("fileId")
-    const name = searchParams.get("name")
-  } else {
-    const simulationID = id
+    voxel_size: 0.5,
+    fps: 60,
+    num_rays: 10000,
+    num_iterations: 100,
+    floor_material: "concrete",
+    wall_material: "plaster",
+    roof_material: "acoustic_tile",
+  });
+
+  if (id === "new") {
+    useEffect(() => {
+      async function load() {
+        if (!id) return;
+
+        if (id === "new") {
+          const fileID = searchParams.get("fileId");
+          if (!fileID) {
+            setError("No file specified for new sim");
+            console.log("error");
+            setLoading(false);
+            return;
+          }
+          try {
+            const url = getFileView(fileID);
+            setModelUrl(url);
+
+            setSimDetails({
+              name: searchParams.get("name") || "New Simulation",
+              status: "staging",
+              input_file_id: fileID,
+            });
+          } catch (err: any) {
+            setError(err.message);
+            console.log(error);
+          } finally {
+            setLoading(false);
+          }
+          return;
+        }
+      }
+    load()}, [id, searchParams]);
   }
 
   return (
