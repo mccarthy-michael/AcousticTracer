@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Center, useGLTF, Bounds } from "@react-three/drei";
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense, useCallback, useEffect, useMemo } from "react";
 import * as THREE from "three";
 
 interface SceneCanvasProps {
@@ -17,12 +17,14 @@ function Model({
 }) {
   const { scene } = useGLTF(url, true);
 
+  const clonedScene = useMemo(() => scene.clone(), [scene])
+
   useEffect(() => {
-    if (scene) {
-      const box = new THREE.Box3().setFromObject(scene);
+    if (clonedScene) {
+      const box = new THREE.Box3().setFromObject(clonedScene);
       onLoad(box);
     }
-  }, [scene, onLoad]);
+  }, [clonedScene, onLoad]);
   return <primitive object={scene} />;
 }
 
@@ -30,14 +32,6 @@ export default function SceneCanvas({
   modelUrl,
   onBoundsCalculated,
 }: SceneCanvasProps) {
-  const handleBounds = useCallback(
-    (box: THREE.Box3) => {
-      if (onBoundsCalculated) {
-        onBoundsCalculated(box);
-      }
-    },
-    [onBoundsCalculated],
-  );
   if (!modelUrl) return null;
 
   return (
@@ -47,7 +41,7 @@ export default function SceneCanvas({
       <Suspense fallback={null}>
         <Bounds fit clip observe margin={2}>
           <Center>
-            <Model url={modelUrl} onLoad={handleBounds} />
+            <Model url={modelUrl} onLoad={onBoundsCalculated || (() => {}) } />
           </Center>
         </Bounds>
       </Suspense>

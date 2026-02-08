@@ -1,6 +1,7 @@
 import { useParams, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { getSimulation, getFileView } from "../api/simulations";
+import { type Simulation, type SimulationConfig } from "../types/meta";
 import SceneCanvas from "../r3f/SceneCanvas";
 import SimDetails from "../components/SimDetails";
 import * as THREE from "three";
@@ -14,7 +15,8 @@ export default function Scene() {
     loading: boolean;
     error: string | null;
     modelUrl: string | null;
-    simDetails: any;
+    // It can be a full Simulation (from DB) or a Staging Draft (Partial)
+    simDetails: Simulation | Partial<Simulation> | null;
   }>({
     loading: true,
     error: null,
@@ -24,7 +26,8 @@ export default function Scene() {
   // The staging state will change later
   const [bounds, setBounds] = useState<THREE.Box3 | null>(null);
   const [showGrid, setShowGrid] = useState(true);
-  const [config, setConfig] = useState({
+
+  const [config, setConfig] = useState<SimulationConfig>({
     voxel_size: 0.5,
     fps: 60,
     num_rays: 10000,
@@ -37,6 +40,8 @@ export default function Scene() {
   useEffect(() => {
     async function load() {
       if (!id) return;
+
+      setViewState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
         let url: string | null = null;
@@ -80,8 +85,7 @@ export default function Scene() {
     load();
   }, [id, searchParams]);
 
-  const { loading, error, modelUrl, simDetails: details} = viewState;
-
+  const { loading, error, modelUrl, simDetails } = viewState;
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary overflow-hidden">
@@ -93,11 +97,11 @@ export default function Scene() {
           <span>←</span> Back
         </button>
         <h1 className="text-xl font-bold text-text-primary m-0">
-          {id ? "Simulation View" : "Scene Viewer"}
+          {id ? simDetails?.name : "Scene Viewer"}
         </h1>
 
         {/* Info Icon & Dropdown - Top Right */}
-        <SimDetails simDetails={details} />
+        <SimDetails simDetails={simDetails} />
       </header>
       <main className="flex-1 p-4 w-full h-full min-h-0 relative">
         <div className="w-full h-full bg-bg-card rounded-xl shadow-md overflow-hidden relative flex items-center justify-center border border-border-primary">
