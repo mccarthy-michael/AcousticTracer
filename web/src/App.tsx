@@ -6,7 +6,7 @@ function AppContent() {
   const { current, isLoading } = useUser();
 
   if (isLoading) {
-    return <div className="loading-container">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen text-text-secondary">Loading...</div>;
   }
 
   return (
