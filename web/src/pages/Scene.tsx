@@ -21,12 +21,14 @@ export default function Scene() {
   // Different data states
   const [viewState, setViewState] = useState<{
     loading: boolean;
+    submitting: boolean;
     error: string | null;
     modelUrl: string | null;
     // It can be a full Simulation (from DB) or a Staging Draft (Partial)
     simDetails: Simulation | Partial<Simulation> | null;
   }>({
     loading: true,
+    submitting: false,
     error: null,
     modelUrl: null,
     simDetails: null,
@@ -71,6 +73,7 @@ export default function Scene() {
 
         setViewState({
           loading: false,
+          submitting: false,
           error: null,
           modelUrl: url,
           simDetails: details,
@@ -93,7 +96,7 @@ export default function Scene() {
     };
   }, [id, searchParams, setVoxelSize]); // omitted pendingFile to avoid reload loops
 
-  const { loading, error, modelUrl, simDetails } = viewState;
+  const { loading, submitting, error, modelUrl, simDetails } = viewState;
 
   // Use store for bounds and config
   const bounds = useSceneStore((state) => state.bounds);
@@ -103,7 +106,7 @@ export default function Scene() {
     if (!bounds) return;
 
     try {
-      setViewState((prev) => ({ ...prev, loading: true }));
+      setViewState((prev) => ({ ...prev, submitting: true }));
 
       let fileId = simDetails?.input_file_id;
 
@@ -140,7 +143,7 @@ export default function Scene() {
     } catch (err) {
       console.error(err);
       alert("Failed to start simulation");
-      setViewState((prev) => ({ ...prev, loading: false }));
+      setViewState((prev) => ({ ...prev, submitting: false }));
     }
   };
 
@@ -167,10 +170,10 @@ export default function Scene() {
           {simDetails?.status === "staging" && (
             <button
               onClick={handleStartSimulation}
-              disabled={loading || !bounds}
+              disabled={loading || submitting || !bounds}
               className="px-4 py-2 bg-button-primary text-white text-sm font-semibold rounded hover:bg-button-hover disabled:opacity-50 disabled:cursor-wait"
             >
-              {loading ? "Starting..." : "Run Simulation"}
+              {submitting ? "Starting..." : "Run Simulation"}
             </button>
           )}
           <SimDetails simDetails={simDetails} />
@@ -179,8 +182,17 @@ export default function Scene() {
       <main className="flex-1 p-4 w-5/6 h-full min-h-0 relative">
         <div className="w-full h-full bg-bg-card rounded-xl shadow-md overflow-hidden relative flex items-center justify-center border border-border-primary">
           {loading && (
-            <div className="text-text-primary bg-bg-card/80 backdrop-blur px-4 py-2 rounded shadow-lg border border-border-primary font-medium">
-              Initializing Scene...
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-bg-card/80 backdrop-blur">
+              <div className="text-text-primary px-4 py-2 rounded shadow-lg border border-border-primary font-medium bg-bg-card">
+                Initializing Scene...
+              </div>
+            </div>
+          )}
+          {submitting && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm cursor-wait">
+              <div className="text-text-primary px-4 py-2 rounded shadow-lg border border-border-primary font-medium bg-bg-card">
+                Building Simulation...
+              </div>
             </div>
           )}
           {error && (
