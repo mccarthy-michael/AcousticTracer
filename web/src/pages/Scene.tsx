@@ -4,11 +4,15 @@ import {
   getSimulation,
   getFileView,
   createSimulationFromExisting,
+  uploadSimulationFile,
 } from "../api/simulations";
-import { type Simulation, type SimulationConfig } from "../types/meta";
+import { type Simulation } from "../types/meta";
 import SceneCanvas from "../r3f/SceneCanvas";
 import SimDetails from "../components/SimDetails";
+import ConfigPanel from "../components/ConfigPanel";
 import * as THREE from "three";
+import { useSceneStore } from "../stores/useSceneStore";
+
 export default function Scene() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -28,18 +32,9 @@ export default function Scene() {
     simDetails: null,
   });
 
-  const [bounds, setBounds] = useState<THREE.Box3 | null>(null);
-  const [showGrid, setShowGrid] = useState(true);
-
-  const [config, setConfig] = useState<SimulationConfig>({
-    voxel_size: 2,
-    fps: 60,
-    num_rays: 10000,
-    num_iterations: 100,
-    floor_material: "concrete",
-    wall_material: "plaster",
-    roof_material: "acoustic_tile",
-  });
+  // Use store for state
+  const setVoxelSize = useSceneStore((state) => state.setVoxelSize);
+  const pendingFile = useSceneStore((state) => state.pendingFile);
 
   useEffect(() => {
     async function load() {
@@ -52,14 +47,16 @@ export default function Scene() {
         let details: any = null;
 
         if (id === "new") {
-          const fileID = searchParams.get("fileId");
-          if (!fileID) throw new Error("No file specified for new sim");
+          // Local file mode
+          if (!pendingFile) {
+            throw new Error("No file selected. Please upload a file first.");
+          }
 
-          url = getFileView(fileID);
+          url = URL.createObjectURL(pendingFile);
           details = {
             name: searchParams.get("name") || "New Simulation",
             status: "staging",
-            input_file_id: fileID,
+            input_file_id: null,
           };
         } else {
           details = await getSimulation(id);
@@ -68,7 +65,7 @@ export default function Scene() {
           }
           // Update config state here if needed
           if (details.voxel_size) {
-            setConfig((prev) => ({ ...prev, voxel_size: details.voxel_size }));
+            setVoxelSize(details.voxel_size);
           }
         }
 
@@ -87,28 +84,52 @@ export default function Scene() {
       }
     }
     load();
-  }, [id, searchParams]);
+
+    // Cleanup blob URL
+    return () => {
+      if (id === "new" && viewState.modelUrl) {
+        URL.revokeObjectURL(viewState.modelUrl);
+      }
+    };
+  }, [id, searchParams, setVoxelSize]); // omitted pendingFile to avoid reload loops
 
   const { loading, error, modelUrl, simDetails } = viewState;
 
+  // Use store for bounds and config
+  const bounds = useSceneStore((state) => state.bounds);
+  const config = useSceneStore((state) => state.config);
+
   const handleStartSimulation = async () => {
-    if (!bounds || !simDetails?.input_file_id) return;
+    if (!bounds) return;
 
     try {
       setViewState((prev) => ({ ...prev, loading: true }));
+
+      let fileId = simDetails?.input_file_id;
+
+      // If no file ID, we need to upload the local file first
+      if (!fileId && id === "new") {
+        if (!pendingFile) throw new Error("File lost. Please re-upload.");
+        console.log("Uploading file to storage...");
+        const uploadedFile = await uploadSimulationFile(pendingFile);
+        fileId = uploadedFile.$id;
+      }
+
+      if (!fileId) throw new Error("No file ID available");
+
       const size = new THREE.Vector3();
       bounds.getSize(size);
 
       await createSimulationFromExisting({
-        name: simDetails.name || "Untitled Simulation",
-        file_id: simDetails.input_file_id,
-        voxel_size: config.voxel_size,
+        name: simDetails?.name || "Untitled Simulation",
+        file_id: fileId,
+        voxel_size: config.voxelSize,
         fps: config.fps,
-        num_rays: config.num_rays,
-        num_iterations: config.num_iterations,
-        floor_material: config.floor_material,
-        wall_material: config.wall_material,
-        roof_material: config.roof_material,
+        num_rays: config.numRays,
+        num_iterations: config.numIterations,
+        floor_material: config.materials.floor,
+        wall_material: config.materials.wall,
+        roof_material: config.materials.roof,
         area_x: size.x,
         area_y: size.y,
         area_z: size.z,
@@ -169,93 +190,11 @@ export default function Scene() {
           )}
           {!loading && !error && modelUrl && (
             <div className="w-full h-full relative">
-                <div className="absolute top-4 left-4 w-50  bg-bg-card/90 backdrop-blur border border-border-primary p-4 rounded-xl shadow-xl z-10">
-                  <h3 className="text-sm font-bold uppercase text-text-secondary mb-4">
-                    Simulation Config
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Show Voxel Grid</span>
-                    <input
-                      type="checkbox"
-                      checked={showGrid}
-                      onChange={(e) => setShowGrid(e.target.checked)}
-                      className="accent-button-primary scale-125"
-                    />
-                  </div>
-                  {simDetails?.status === "staging" && (<div className="space-y-4">
-                    {/* Voxel Size Slider */}
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Voxel Size</span>
-                        <span className="font-mono text-button-primary">
-                          {config.voxel_size}m
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0.1"
-                        max="2.0"
-                        step="0.1"
-                        value={config.voxel_size}
-                        onChange={(e) =>
-                          setConfig((prev) => ({
-                            ...prev,
-                            voxel_size: parseFloat(e.target.value),
-                          }))
-                        }
-                        className="w-full accent-button-primary"
-                      />
-                    </div>
+              <div className="absolute top-4 left-4 w-50 z-10">
+                <ConfigPanel />
+              </div>
 
-                    {/* Grid Toggle */}
-                    {/* Grid Stats Info */}
-                    {bounds && (
-                      <div className="p-3 bg-black/20 rounded border border-white/5 text-xs font-mono text-text-secondary">
-                        <div className="mb-1 text-text-primary font-semibold">
-                          Grid Dimensions:
-                        </div>
-                        <div>
-                          {Math.ceil(
-                            (bounds.max.x - bounds.min.x) / config.voxel_size,
-                          )}{" "}
-                          x{" "}
-                          {Math.ceil(
-                            (bounds.max.y - bounds.min.y) / config.voxel_size,
-                          )}{" "}
-                          x{" "}
-                          {Math.ceil(
-                            (bounds.max.z - bounds.min.z) / config.voxel_size,
-                          )}
-                        </div>
-                        <div className="mt-2 text-text-primary font-semibold">
-                          Total Voxels:
-                        </div>
-                        <div>
-                          {(
-                            Math.ceil(
-                              (bounds.max.x - bounds.min.x) / config.voxel_size,
-                            ) *
-                            Math.ceil(
-                              (bounds.max.y - bounds.min.y) / config.voxel_size,
-                            ) *
-                            Math.ceil(
-                              (bounds.max.z - bounds.min.z) / config.voxel_size,
-                            )
-                          ).toLocaleString()}
-                        </div>
-                      </div>
-                    )}
-                  </div>)}
-                </div>
-              
-
-              <SceneCanvas
-                modelUrl={modelUrl}
-                voxelSize={config.voxel_size}
-                showGrid={showGrid}
-                bounds={bounds}
-                onBoundsCalculated={setBounds}
-              />
+              <SceneCanvas modelUrl={modelUrl} />
             </div>
           )}
         </div>

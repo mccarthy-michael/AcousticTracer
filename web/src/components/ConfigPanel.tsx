@@ -1,13 +1,12 @@
-import { useSceneStore } from "../stores/useSceneStores";
+import { useSceneStore } from "../stores/useSceneStore";
+import * as THREE from "three";
 
 export default function ConfigPanel() {
   const voxelSize = useSceneStore((state) => state.config.voxelSize);
   const setVoxelSize = useSceneStore((state) => state.setVoxelSize);
 
-  const { showGrid, setShowGrid } = useSceneStore((state) => ({
-    showGrid: state.showGrid,
-    setShowGrid: state.setShowGrid,
-  }));
+  const showGrid = useSceneStore((state) => state.showGrid);
+  const setShowGrid = useSceneStore((state) => state.setShowGrid);
   return (
     <div className="bg-bg-card p-4 rounded-lg border border-border-primary w-80">
       <h3 className="text-text-primary font-bold mb-4">Settings</h3>
@@ -32,7 +31,7 @@ export default function ConfigPanel() {
       </div>
 
       {/* Grid Toggle */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <span className="text-sm">Show Voxel Grid</span>
         <input
           type="checkbox"
@@ -41,6 +40,37 @@ export default function ConfigPanel() {
           className="accent-button-primary scale-125"
         />
       </div>
+
+      {/* Grid Stats Info */}
+      <GridStats />
+    </div>
+  );
+}
+
+function GridStats() {
+  const bounds = useSceneStore((state) => state.bounds);
+  const voxelSize = useSceneStore((state) => state.config.voxelSize);
+
+  if (!bounds) return null;
+
+  const size = new THREE.Vector3();
+  bounds.getSize(size);
+
+  const nx = Math.ceil(size.x / voxelSize);
+  const ny = Math.ceil(size.y / voxelSize);
+  const nz = Math.ceil(size.z / voxelSize);
+  const total = nx * ny * nz;
+
+  return (
+    <div className="p-3 bg-black/20 rounded border border-white/5 text-xs font-mono text-text-secondary">
+      <div className="mb-1 text-text-primary font-semibold">
+        Grid Dimensions:
+      </div>
+      <div>
+        {nx} x {ny} x {nz}
+      </div>
+      <div className="mt-2 text-text-primary font-semibold">Total Voxels:</div>
+      <div>{total.toLocaleString()}</div>
     </div>
   );
 }

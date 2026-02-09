@@ -9,14 +9,11 @@ import {
 } from "@react-three/drei";
 import { Suspense, useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { useSceneStore } from "../stores/useSceneStore";
 import VoxelGrid from "./VoxelInstancedMesh";
 
 interface SceneCanvasProps {
   modelUrl: string | null;
-  voxelSize: number;
-  showGrid: boolean;
-  bounds: THREE.Box3 | null;
-  onBoundsCalculated?: (bounds: THREE.Box3) => void;
 }
 
 function Loader() {
@@ -24,7 +21,7 @@ function Loader() {
   return (
     <Html center>
       <div className="text-text-primary bg-bg-card/80 backdrop-blur px-4 py-2 rounded shadow-lg border border-border-primary font-medium">
-        {progress.toFixed(0)}% loaded
+        {progress.toFixed(0)}%
       </div>
     </Html>
   );
@@ -37,6 +34,7 @@ function Model({
   url: string;
   onLoad: (box: THREE.Box3) => void;
 }) {
+  useGLTF.preload(url)
   const { scene } = useGLTF(url, true);
 
   const clonedScene = useMemo(() => scene.clone(), [scene]);
@@ -50,13 +48,11 @@ function Model({
   return <primitive object={clonedScene} />;
 }
 
-export default function SceneCanvas({
-  modelUrl,
-  voxelSize,
-  showGrid,
-  bounds,
-  onBoundsCalculated,
-}: SceneCanvasProps) {
+export default function SceneCanvas({ modelUrl }: SceneCanvasProps) {
+  const setBounds = useSceneStore((state) => state.setBounds);
+  const bounds = useSceneStore((state) => state.bounds);
+  const showGrid = useSceneStore((state) => state.showGrid);
+
   if (!modelUrl) return null;
 
   return (
@@ -66,14 +62,8 @@ export default function SceneCanvas({
       <Suspense fallback={<Loader />}>
         <Bounds fit clip observe margin={2}>
           <Center>
-            <Model url={modelUrl} onLoad={onBoundsCalculated || (() => {})} />
-            {bounds && showGrid && (
-              <VoxelGrid
-                bounds={bounds}
-                voxelSize={voxelSize}
-                visible={showGrid}
-              />
-            )}
+            <Model url={modelUrl} onLoad={setBounds} />
+            {bounds && showGrid && <VoxelGrid />}
           </Center>
         </Bounds>
       </Suspense>

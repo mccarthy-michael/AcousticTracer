@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { uploadSimulationFile } from "../api/simulations";
 import { useNavigate } from "react-router";
+import { useSceneStore } from "../stores/useSceneStore";
 
 interface UploadFormProps {
   onClose?: () => void;
@@ -11,6 +12,7 @@ export default function UploadForm({ onClose }: UploadFormProps) {
   const [name, setName] = useState("New Room");
   const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
+  const setPendingFile = useSceneStore((state) => state.setPendingFile);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -20,22 +22,18 @@ export default function UploadForm({ onClose }: UploadFormProps) {
     }
 
     try {
-      setIsUploading(true);
-      console.log("Uploading file:", file.name);
-
-      const uploadedFile = await uploadSimulationFile(file);
+      // 1. Store the file in global state instead of uploading immediately
+      setPendingFile(file);
 
       // 2. Close the modal
       if (onClose) onClose();
 
-      navigate(
-        `/scene/new?fileId=${uploadedFile.$id}&name=${encodeURIComponent(name)}`,
-      );
+      // 3. Navigate to scene view with just the name
+      // File will be retrieved from store
+      navigate(`/scene/new?name=${encodeURIComponent(name)}`);
     } catch (err) {
-      console.error("Failed to upload file", err);
-      alert("File upload failed (check console)");
-    } finally {
-      setIsUploading(false);
+      console.error("Failed to process file", err);
+      alert("File processing failed");
     }
   };
 

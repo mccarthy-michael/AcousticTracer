@@ -1,27 +1,20 @@
 import { useRef, useMemo, useLayoutEffect } from "react";
 import * as THREE from "three";
+import { useSceneStore } from "../stores/useSceneStore";
 
-interface VoxelGridProps {
-  bounds: THREE.Box3;
-  voxelSize: number;
-  visible: boolean;
-}
-
-export default function VoxelGrid({
-  bounds,
-  voxelSize,
-  visible,
-}: VoxelGridProps) {
-  // 1. Direct access to the GPU instance layer
+export default function VoxelGrid() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
-  // 2. Calculate how many voxels we actually need
+  // Subscribe to the data this component needs
+  const bounds = useSceneStore((state) => state.bounds);
+  const voxelSize = useSceneStore((state) => state.config.voxelSize);
+  const visible = useSceneStore((state) => state.showGrid);
+
   const { count, gridDims } = useMemo(() => {
-    // Get total size of the room
+    if (!bounds) return { count: 0, gridDims: { nx: 0, ny: 0, nz: 0 } };
+
     const size = new THREE.Vector3();
     bounds.getSize(size);
-
-    // How many cubes fit in each dimension?
     const nx = Math.ceil(size.x / voxelSize);
     const ny = Math.ceil(size.y / voxelSize);
     const nz = Math.ceil(size.z / voxelSize);
@@ -33,62 +26,41 @@ export default function VoxelGrid({
   }, [bounds, voxelSize]);
 
   useLayoutEffect(() => {
-    if (!meshRef.current) return;
-    const mesh = meshRef.current;
+    if (!meshRef.current || !bounds) return;
 
-    // 1. Get direct access to the binary data
-    const array = mesh.instanceMatrix.array;
+    const array = meshRef.current.instanceMatrix.array;
     const halfSize = voxelSize / 2;
-    const scale = 0.95; // simple for aesthetic purposes, slight gap between voxels
+    const scale = 0.95; // Slight gap between voxels
+    const { nx, ny, nz } = gridDims;
 
-    // Deconstruct dimensions to avoid property access in loop
-    const { nx, ny } = gridDims;
+    let i = 0;
+    for (let z = 0; z < nz; z++) {
+      for (let y = 0; y < ny; y++) {
+        for (let x = 0; x < nx; x++) {
+          const posX = bounds.min.x + x * voxelSize + halfSize;
+          const posY = bounds.min.y + y * voxelSize + halfSize;
+          const posZ = bounds.min.z + z * voxelSize + halfSize;
 
-    // Flat loop is cleaner for the JIT zcompiler
-    for (let i = 0; i < count; i++) {
-      // fast integer math for 3D coordinates
-      const x = i % nx;
-      const y = Math.floor(i / nx) % ny;
-      const z = Math.floor(i / (nx * ny));
+          const offset = i * 16;
 
-      const posX = bounds.min.x + x * voxelSize + halfSize;
-      const posY = bounds.min.y + y * voxelSize + halfSize;
-      const posZ = bounds.min.z + z * voxelSize + halfSize;
+          // Write matrix directly to GPU buffer (Column-major order)
+          array[offset + 0] = scale; // Scale X
+          array[offset + 5] = scale; // Scale Y
+          array[offset + 10] = scale; // Scale Z
+          array[offset + 12] = posX; // Position X
+          array[offset + 13] = posY; // Position Y
+          array[offset + 14] = posZ; // Position Z
+          array[offset + 15] = 1; // Homogeneous coordinates
 
-      // Pointer to the start of this matrix in the big array
-      const offset = i * 16;
-
-      // Unrolled Matrix4 set (Fastest possible way in JS)
-      // Column 0
-      array[offset + 0] = scale;
-      array[offset + 1] = 0;
-      array[offset + 2] = 0;
-      array[offset + 3] = 0;
-
-      // Column 1
-      array[offset + 4] = 0;
-      array[offset + 5] = scale;
-      array[offset + 6] = 0;
-      array[offset + 7] = 0;
-
-      // Column 2
-      array[offset + 8] = 0;
-      array[offset + 9] = 0;
-      array[offset + 10] = scale;
-      array[offset + 11] = 0;
-
-      // Column 3 (Position)
-      array[offset + 12] = posX;
-      array[offset + 13] = posY;
-      array[offset + 14] = posZ;
-      array[offset + 15] = 1;
+          i++;
+        }
+      }
     }
-
-    mesh.instanceMatrix.needsUpdate = true;
+    meshRef.current.instanceMatrix.needsUpdate = true;
   }, [bounds, voxelSize, gridDims, count]);
 
-  // 3. Render the specific "Instance" container
-  // args={[geometry, material, count]}
+  if (!bounds) return null;
+
   return (
     <instancedMesh
       ref={meshRef}
@@ -101,7 +73,6 @@ export default function VoxelGrid({
         transparent
         opacity={0.15}
         depthWrite={false}
-        side={THREE.DoubleSide}
       />
     </instancedMesh>
   );

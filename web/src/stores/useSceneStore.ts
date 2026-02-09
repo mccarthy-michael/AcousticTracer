@@ -15,16 +15,18 @@ interface SceneState {
   };
   bounds: THREE.Box3 | null;
   showGrid: boolean;
+  pendingFile: File | null;
 
   setVoxelSize: (size: number) => void;
   setBounds: (box: THREE.Box3) => void;
   setShowGrid: (visible: boolean) => void;
+  setPendingFile: (file: File | null) => void;
   setMaterial: (type: "floor" | "wall" | "roof", value: string) => void;
 }
 
 export const useSceneStore = create<SceneState>()((set, get) => ({
   config: {
-    voxelSize: 0.5,
+    voxelSize: 2,
     numRays: 10000,
     numIterations: 100,
     fps: 60,
@@ -36,6 +38,7 @@ export const useSceneStore = create<SceneState>()((set, get) => ({
   },
   bounds: null,
   showGrid: true,
+  pendingFile: null,
 
   // the actions functions to call when updating state
   setVoxelSize: (size) =>
@@ -44,6 +47,7 @@ export const useSceneStore = create<SceneState>()((set, get) => ({
     })),
   setBounds: (box) => set({ bounds: box }),
   setShowGrid: (visible) => set({ showGrid: visible }),
+  setPendingFile: (file) => set({ pendingFile: file }),
   setMaterial: (type, value) =>
     set((state) => ({
       config: {
