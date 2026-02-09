@@ -1,10 +1,14 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Center, useGLTF, Bounds } from "@react-three/drei";
-import { Suspense, useCallback, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import * as THREE from "three";
+import VoxelGrid from "./VoxelInstancedMesh";
 
 interface SceneCanvasProps {
   modelUrl: string | null;
+  voxelSize: number;
+  showGrid: boolean;
+  bounds: THREE.Box3 | null;
   onBoundsCalculated?: (bounds: THREE.Box3) => void;
 }
 
@@ -17,7 +21,7 @@ function Model({
 }) {
   const { scene } = useGLTF(url, true);
 
-  const clonedScene = useMemo(() => scene.clone(), [scene])
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
 
   useEffect(() => {
     if (clonedScene) {
@@ -25,11 +29,14 @@ function Model({
       onLoad(box);
     }
   }, [clonedScene, onLoad]);
-  return <primitive object={scene} />;
+  return <primitive object={clonedScene} />;
 }
 
 export default function SceneCanvas({
   modelUrl,
+  voxelSize,
+  showGrid,
+  bounds,
   onBoundsCalculated,
 }: SceneCanvasProps) {
   if (!modelUrl) return null;
@@ -41,7 +48,14 @@ export default function SceneCanvas({
       <Suspense fallback={null}>
         <Bounds fit clip observe margin={2}>
           <Center>
-            <Model url={modelUrl} onLoad={onBoundsCalculated || (() => {}) } />
+            <Model url={modelUrl} onLoad={onBoundsCalculated || (() => {})} />
+            {bounds && showGrid && (
+              <VoxelGrid
+                bounds={bounds}
+                voxelSize={voxelSize}
+                visible={showGrid}
+              />
+            )}
           </Center>
         </Bounds>
       </Suspense>

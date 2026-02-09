@@ -117,7 +117,96 @@ export default function Scene() {
           )}
           {!loading && !error && modelUrl && (
             <div className="w-full h-full relative">
-              <SceneCanvas modelUrl={modelUrl} onBoundsCalculated={setBounds} />
+              {simDetails?.status === "staging" && (
+                <div className="absolute top-4 left-4 w-80 bg-bg-card/90 backdrop-blur border border-border-primary p-4 rounded-xl shadow-xl z-10">
+                  <h3 className="text-sm font-bold uppercase text-text-secondary mb-4">
+                    Simulation Config
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* Voxel Size Slider */}
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Voxel Size</span>
+                        <span className="font-mono text-button-primary">
+                          {config.voxel_size}m
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="2.0"
+                        step="0.1"
+                        value={config.voxel_size}
+                        onChange={(e) =>
+                          setConfig((prev) => ({
+                            ...prev,
+                            voxel_size: parseFloat(e.target.value),
+                          }))
+                        }
+                        className="w-full accent-button-primary"
+                      />
+                    </div>
+
+                    {/* Grid Toggle */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Show Voxel Grid</span>
+                      <input
+                        type="checkbox"
+                        checked={showGrid}
+                        onChange={(e) => setShowGrid(e.target.checked)}
+                        className="accent-button-primary scale-125"
+                      />
+                    </div>
+
+                    {/* Grid Stats Info */}
+                    {bounds && (
+                      <div className="p-3 bg-black/20 rounded border border-white/5 text-xs font-mono text-text-secondary">
+                        <div className="mb-1 text-text-primary font-semibold">
+                          Grid Dimensions:
+                        </div>
+                        <div>
+                          {Math.ceil(
+                            (bounds.max.x - bounds.min.x) / config.voxel_size,
+                          )}{" "}
+                          x{" "}
+                          {Math.ceil(
+                            (bounds.max.y - bounds.min.y) / config.voxel_size,
+                          )}{" "}
+                          x{" "}
+                          {Math.ceil(
+                            (bounds.max.z - bounds.min.z) / config.voxel_size,
+                          )}
+                        </div>
+                        <div className="mt-2 text-text-primary font-semibold">
+                          Total Voxels:
+                        </div>
+                        <div>
+                          {(
+                            Math.ceil(
+                              (bounds.max.x - bounds.min.x) / config.voxel_size,
+                            ) *
+                            Math.ceil(
+                              (bounds.max.y - bounds.min.y) / config.voxel_size,
+                            ) *
+                            Math.ceil(
+                              (bounds.max.z - bounds.min.z) / config.voxel_size,
+                            )
+                          ).toLocaleString()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <SceneCanvas
+                modelUrl={modelUrl}
+                voxelSize={config.voxel_size}
+                showGrid={showGrid}
+                bounds={bounds}
+                onBoundsCalculated={setBounds}
+              />
             </div>
           )}
         </div>

@@ -11,7 +11,6 @@ export interface SimulationConfig {
   area_y?: number;
   area_z?: number;
 }
-
 export interface Simulation extends SimulationConfig {
   $id: string;
   $createdAt: string;
