@@ -34,7 +34,7 @@ function Model({
   url: string;
   onLoad: (box: THREE.Box3) => void;
 }) {
-  useGLTF.preload(url)
+  useGLTF.preload(url);
   const { scene } = useGLTF(url, true);
 
   const clonedScene = useMemo(() => scene.clone(), [scene]);
@@ -56,11 +56,11 @@ export default function SceneCanvas({ modelUrl }: SceneCanvasProps) {
   if (!modelUrl) return null;
 
   return (
-    <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
+    <Canvas camera={{ position: [10, 5, 5], fov: 50 }}>
       <ambientLight intensity={0.7} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <Suspense fallback={<Loader />}>
-        <Bounds fit clip observe margin={2}>
+        <Bounds fit clip observe margin={1.5}>
           <Center>
             <Model url={modelUrl} onLoad={setBounds} />
             {bounds && showGrid && <VoxelGrid />}

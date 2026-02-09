@@ -191,7 +191,7 @@ export default function Scene() {
           {!loading && !error && modelUrl && (
             <div className="w-full h-full relative">
               <div className="absolute top-4 left-4 w-50 z-10">
-                <ConfigPanel />
+                <ConfigPanel isEditable={simDetails?.status === "staging"} />
               </div>
 
               <SceneCanvas modelUrl={modelUrl} />
