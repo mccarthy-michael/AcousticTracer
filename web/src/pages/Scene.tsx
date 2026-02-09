@@ -32,7 +32,7 @@ export default function Scene() {
   const [showGrid, setShowGrid] = useState(true);
 
   const [config, setConfig] = useState<SimulationConfig>({
-    voxel_size: 0.5,
+    voxel_size: 2,
     fps: 60,
     num_rays: 10000,
     num_iterations: 100,
@@ -169,13 +169,20 @@ export default function Scene() {
           )}
           {!loading && !error && modelUrl && (
             <div className="w-full h-full relative">
-              {simDetails?.status === "staging" && (
                 <div className="absolute top-4 left-4 w-50  bg-bg-card/90 backdrop-blur border border-border-primary p-4 rounded-xl shadow-xl z-10">
                   <h3 className="text-sm font-bold uppercase text-text-secondary mb-4">
                     Simulation Config
                   </h3>
-
-                  <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Show Voxel Grid</span>
+                    <input
+                      type="checkbox"
+                      checked={showGrid}
+                      onChange={(e) => setShowGrid(e.target.checked)}
+                      className="accent-button-primary scale-125"
+                    />
+                  </div>
+                  {simDetails?.status === "staging" && (<div className="space-y-4">
                     {/* Voxel Size Slider */}
                     <div>
                       <div className="flex justify-between text-sm mb-1">
@@ -201,16 +208,6 @@ export default function Scene() {
                     </div>
 
                     {/* Grid Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Show Voxel Grid</span>
-                      <input
-                        type="checkbox"
-                        checked={showGrid}
-                        onChange={(e) => setShowGrid(e.target.checked)}
-                        className="accent-button-primary scale-125"
-                      />
-                    </div>
-
                     {/* Grid Stats Info */}
                     {bounds && (
                       <div className="p-3 bg-black/20 rounded border border-white/5 text-xs font-mono text-text-secondary">
@@ -248,9 +245,9 @@ export default function Scene() {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </div>)}
                 </div>
-              )}
+              
 
               <SceneCanvas
                 modelUrl={modelUrl}
