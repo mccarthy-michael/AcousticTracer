@@ -1,5 +1,6 @@
 import { ID, Query } from "appwrite";
 import { tablesDB, storage, account } from "../lib/appwrite";
+import type { SimulationConfig } from "../types/meta";
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const TABLE_ID = import.meta.env.VITE_APPWRITE_TABLE_ID_SIMULATIONS;
@@ -19,22 +20,14 @@ export async function uploadSimulationFile(file: File) {
   }
 }
 
-export interface SimulationConfig {
+export type CreateSimulationParams = SimulationConfig & {
   name: string;
-  file_id: string; // The ID of the already uploaded file
-  voxel_size: number;
-  floor_material: string;
-  wall_material: string;
-  roof_material: string;
-  fps: number;
-  num_rays: number;
-  num_iterations: number;
-  area_x: number;
-  area_y: number;
-  area_z: number;
-}
+  file_id: string;
+};
 
-export async function createSimulationFromExisting(config: SimulationConfig) {
+export async function createSimulationFromExisting(
+  config: CreateSimulationParams,
+) {
   try {
     const user = await account.get();
     console.log("Creating database entry for existing file:", config.file_id);
