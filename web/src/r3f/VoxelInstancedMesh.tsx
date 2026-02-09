@@ -41,10 +41,10 @@ export default function VoxelGrid({
     const halfSize = voxelSize / 2;
     const scale = 0.95; // simple for aesthetic purposes, slight gap between voxels
 
-    // Pre-extract dimensions to avoid property access in loop
+    // Deconstruct dimensions to avoid property access in loop
     const { nx, ny } = gridDims;
 
-    // Flat loop is cleaner for the JIT compiler
+    // Flat loop is cleaner for the JIT zcompiler
     for (let i = 0; i < count; i++) {
       // fast integer math for 3D coordinates
       const x = i % nx;
