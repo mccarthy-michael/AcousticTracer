@@ -1,59 +1,56 @@
 import { ID, Query } from "appwrite";
 import { tablesDB, storage, account } from "../lib/appwrite";
+import type { SimulationConfig } from "../types/meta";
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const TABLE_ID = import.meta.env.VITE_APPWRITE_TABLE_ID_SIMULATIONS;
 const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID_SIMULATIONS;
 
-export interface SimulationPayload {
-  file: File;
-  name: string;
-  voxel_size: number;
-  floor_material: string;
-  wall_material: string;
-  roof_material: string;
-  fps: number;
-  num_rays: number;
-  num_iterations: number;
-  area_x: number;
-  area_y: number;
-  area_z: number;
-}
-
-export async function createSimulation(payload: SimulationPayload) {
+export async function uploadSimulationFile(file: File) {
   try {
-    const user = await account.get();
-
-    console.log("Uploading file...", payload.file.name);
-
     const uploadedFile = await storage.createFile({
       bucketId: BUCKET_ID,
       fileId: ID.unique(),
-      file: payload.file,
+      file: file,
     });
+    return uploadedFile;
+  } catch (error) {
+    console.error("File Upload Failed:", error);
+    throw error;
+  }
+}
 
-    console.log(uploadedFile);
+export type CreateSimulationParams = SimulationConfig & {
+  name: string;
+  file_id: string;
+};
 
-    console.log("Creating database entry...");
+export async function createSimulationFromExisting(
+  config: CreateSimulationParams,
+) {
+  try {
+    const user = await account.get();
+    console.log("Creating database entry for existing file:", config.file_id);
+
     const row = await tablesDB.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ID,
       rowId: ID.unique(),
       data: {
-        name: payload.name,
+        name: config.name,
         status: "pending",
-        user_id: user.$id, // Link to current user
-        input_file_id: uploadedFile.$id,
-        voxel_size: Number(payload.voxel_size),
-        fps: Number(payload.fps),
-        num_rays: Number(payload.num_rays),
-        num_iterations: Number(payload.num_iterations),
-        floor_material: payload.floor_material,
-        wall_material: payload.wall_material,
-        roof_material: payload.roof_material,
-        area_x: Number(payload.area_x),
-        area_y: Number(payload.area_y),
-        area_z: Number(payload.area_z),
+        user_id: user.$id,
+        input_file_id: config.file_id,
+        voxel_size: Number(config.voxel_size),
+        fps: Number(config.fps),
+        num_rays: Number(config.num_rays),
+        num_iterations: Number(config.num_iterations),
+        floor_material: config.materials.floor,
+        wall_material: config.materials.wall,
+        roof_material: config.materials.roof,
+        area_x: Number(config.area_x),
+        area_y: Number(config.area_y),
+        area_z: Number(config.area_z),
       },
     });
 
@@ -94,22 +91,22 @@ export async function getSimulation(id: string) {
   }
 }
 
-export async function deleteRow(id: string){
-  try{
+export async function deleteRow(id: string) {
+  try {
     return await tablesDB.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ID,
       rowId: id,
     });
-  }catch (error){
-    console.error("Delete Row failed:", error)
-    throw error
+  } catch (error) {
+    console.error("Delete Row failed:", error);
+    throw error;
   }
 }
-
 
 export function getFileView(fileId: string) {
   return storage.getFileView({
     bucketId: BUCKET_ID,
-    fileId: fileId});
+    fileId: fileId,
+  });
 }
