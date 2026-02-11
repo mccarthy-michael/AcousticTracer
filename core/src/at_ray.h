@@ -3,22 +3,24 @@
 
 #include "../src/at_internal.h"
 #include "acoustic/at_math.h"
-#include "../src/at_utils.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 
 static inline AT_Ray AT_ray_init(
     const AT_Vec3 origin,
     const AT_Vec3 direction,
     float current_distance,
+    float energy,
     uint32_t ray_id
 ) {
 
     AT_Ray ray = {
     .origin = origin,
     .direction = AT_vec3_normalize(direction),
-    .energy = 1.0f,
+    //accoustic energy transported by ray (initially, overall sound energy didived equally among rays)
+    .energy = energy,
     .total_distance = current_distance,
     .ray_id = ray_id,
     .bounce_count = 0,

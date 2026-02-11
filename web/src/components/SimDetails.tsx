@@ -63,7 +63,7 @@ export default function SimDetails({ simDetails }: SimDetailsProps) {
             <div className="flex justify-between">
               <span>Voxel Size:</span>
               <span className="text-text-primary">
-                {simDetails.voxel_size} m
+                {simDetails.voxel_size}
               </span>
             </div>
             <div className="flex justify-between">

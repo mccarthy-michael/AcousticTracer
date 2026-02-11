@@ -1,36 +1,153 @@
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
-import { getSimulation, getFileView } from "../api/simulations";
+import {
+  getSimulation,
+  getFileView,
+  createSimulationFromExisting,
+  uploadSimulationFile,
+} from "../api/simulations";
+import { type Simulation } from "../types/meta";
 import SceneCanvas from "../r3f/SceneCanvas";
 import SimDetails from "../components/SimDetails";
+import ConfigPanel from "../components/ConfigPanel";
+import * as THREE from "three";
+import { useSceneStore } from "../stores/useSceneStore";
 
 export default function Scene() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [modelUrl, setModelUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [simDetails, setSimDetails] = useState<any>(null);
+
+  // Different data states
+  const [viewState, setViewState] = useState<{
+    loading: boolean;
+    submitting: boolean;
+    error: string | null;
+    modelUrl: string | null;
+    // It can be a full Simulation (from DB) or a Staging Draft (Partial)
+    simDetails: Simulation | Partial<Simulation> | null;
+  }>({
+    loading: true,
+    submitting: false,
+    error: null,
+    modelUrl: null,
+    simDetails: null,
+  });
+
+  // Use store for state
+  const setVoxelSize = useSceneStore((state) => state.setVoxelSize);
+  const pendingFile = useSceneStore((state) => state.pendingFile);
 
   useEffect(() => {
     async function load() {
       if (!id) return;
+
+      setViewState((prev) => ({ ...prev, loading: true, error: null }));
+
       try {
-        setLoading(true);
-        const sim = await getSimulation(id);
-        setSimDetails(sim);
-        if (sim.input_file_id) {
-          const url = getFileView(sim.input_file_id);
-          setModelUrl(url);
+        let url: string | null = null;
+        let details: any = null;
+
+        if (id === "new") {
+          // Local file mode
+          if (!pendingFile) {
+            throw new Error("No file selected. Please upload a file first.");
+          }
+
+          url = URL.createObjectURL(pendingFile);
+          details = {
+            name: searchParams.get("name") || "New Simulation",
+            status: "staging",
+            input_file_id: null,
+          };
+        } else {
+          details = await getSimulation(id);
+          if (details.input_file_id) {
+            url = getFileView(details.input_file_id);
+          }
+          // Update config state here if needed
+          if (details.voxel_size) {
+            setVoxelSize(details.voxel_size);
+          }
         }
+
+        setViewState({
+          loading: false,
+          submitting: false,
+          error: null,
+          modelUrl: url,
+          simDetails: details,
+        });
       } catch (err: any) {
-        setError(err.message || "Failed to load simulation");
-      } finally {
-        setLoading(false);
+        setViewState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err.message,
+        }));
       }
     }
     load();
-  }, [id]);
+
+    // Cleanup blob URL
+    return () => {
+      if (id === "new" && viewState.modelUrl) {
+        URL.revokeObjectURL(viewState.modelUrl);
+      }
+    };
+  }, [id, searchParams, setVoxelSize]); // omitted pendingFile to avoid reload loops
+
+  const { loading, submitting, error, modelUrl, simDetails } = viewState;
+
+  // Use store for bounds and config
+  const bounds = useSceneStore((state) => state.bounds);
+  const config = useSceneStore((state) => state.config);
+
+  const handleStartSimulation = async () => {
+    if (!bounds) return;
+
+    try {
+      setViewState((prev) => ({ ...prev, submitting: true }));
+
+      let fileId = simDetails?.input_file_id;
+
+      // If no file ID, we need to upload the local file first
+      if (!fileId && id === "new") {
+        if (!pendingFile) throw new Error("File lost. Please re-upload.");
+        console.log("Uploading file to storage...");
+        const uploadedFile = await uploadSimulationFile(pendingFile);
+        fileId = uploadedFile.$id;
+      }
+
+      if (!fileId) throw new Error("No file ID available");
+
+      const size = new THREE.Vector3();
+      bounds.getSize(size);
+
+      await createSimulationFromExisting({
+        name: simDetails?.name || "Untitled Simulation",
+        file_id: fileId,
+        voxel_size: config.voxelSize,
+        fps: config.fps,
+        num_rays: config.numRays,
+        num_iterations: config.numIterations,
+        materials: {
+          floor: config.materials.floor,
+          wall: config.materials.wall,
+          roof: config.materials.roof,
+        },
+        area_x: size.x,
+        area_y: size.y,
+        area_z: size.z,
+      });
+
+      // Redirect to dashboard or reload to view 'pending' state
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to start simulation");
+      setViewState((prev) => ({ ...prev, submitting: false }));
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary overflow-hidden">
@@ -42,17 +159,42 @@ export default function Scene() {
           <span>←</span> Back
         </button>
         <h1 className="text-xl font-bold text-text-primary m-0">
-          {id ? "Simulation View" : "Scene Viewer"}
+          {simDetails?.name || "Scene Viewer"}
+          {simDetails?.status === "staging" && (
+            <span className="ml-3 text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded">
+              Draft
+            </span>
+          )}
         </h1>
 
-        {/* Info Icon & Dropdown - Top Right */}
-        <SimDetails simDetails={simDetails} />
+        <div className="ml-auto flex items-center gap-4">
+          {/* Staging Actions */}
+          {simDetails?.status === "staging" && (
+            <button
+              onClick={handleStartSimulation}
+              disabled={loading || submitting || !bounds}
+              className="px-4 py-2 bg-button-primary text-white text-sm font-semibold rounded hover:bg-button-hover disabled:opacity-50 disabled:cursor-wait"
+            >
+              {submitting ? "Starting..." : "Run Simulation"}
+            </button>
+          )}
+          <SimDetails simDetails={simDetails} />
+        </div>
       </header>
-      <main className="flex-1 p-4 w-full h-full min-h-0 relative">
+      <main className="flex-1 p-4 w-5/6 h-full min-h-0 relative">
         <div className="w-full h-full bg-bg-card rounded-xl shadow-md overflow-hidden relative flex items-center justify-center border border-border-primary">
           {loading && (
-            <div className="text-text-secondary font-medium">
-              Loading scene...
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-bg-card/80 backdrop-blur">
+              <div className="text-text-primary px-4 py-2 rounded shadow-lg border border-border-primary font-medium bg-bg-card">
+                Initializing Scene...
+              </div>
+            </div>
+          )}
+          {submitting && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm cursor-wait">
+              <div className="text-text-primary px-4 py-2 rounded shadow-lg border border-border-primary font-medium bg-bg-card">
+                Building Simulation...
+              </div>
             </div>
           )}
           {error && (
@@ -62,6 +204,10 @@ export default function Scene() {
           )}
           {!loading && !error && modelUrl && (
             <div className="w-full h-full relative">
+              <div className="absolute top-4 left-4 w-50 z-10">
+                <ConfigPanel isEditable={simDetails?.status === "staging"} />
+              </div>
+
               <SceneCanvas modelUrl={modelUrl} />
             </div>
           )}
