@@ -15,11 +15,17 @@ static inline void AT_handle_result(const AT_Result res, const char *err_msg, ..
         case AT_OK:
             break;
 
-        default:
+        case AT_ERR_ALLOC_ERROR:
             vfprintf(stderr, err_msg, args);
-            va_end(args);
-            exit(1);
+            fprintf(stderr, "ALLOCATION ERROR");
+            break;
+
+        case AT_ERR_INVALID_ARGUMENT:
+            vfprintf(stderr, err_msg, args);
+            fprintf(stderr, "INVALID ARGUMENT");
+            break;
     }
+    va_end(args);
 }
 
 #endif // AT_RESULT_H
