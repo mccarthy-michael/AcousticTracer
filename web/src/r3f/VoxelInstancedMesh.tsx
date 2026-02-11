@@ -15,10 +15,13 @@ export default function VoxelGrid() {
 
     const size = new THREE.Vector3();
     bounds.getSize(size);
+    // const nx = size.x / voxelSize;
+    // const ny = size.y / voxelSize;
+    // const nz = size.z / voxelSize;
+
     const nx = Math.ceil(size.x / voxelSize);
     const ny = Math.ceil(size.y / voxelSize);
     const nz = Math.ceil(size.z / voxelSize);
-
     return {
       count: nx * ny * nz,
       gridDims: { nx, ny, nz },
@@ -30,7 +33,7 @@ export default function VoxelGrid() {
 
     const array = meshRef.current.instanceMatrix.array;
     const halfSize = voxelSize / 2;
-    const scale = 0.95; // Slight gap between voxels
+    const scale = 1; // Slight gap between voxels
     const { nx, ny, nz } = gridDims;
 
     let i = 0;

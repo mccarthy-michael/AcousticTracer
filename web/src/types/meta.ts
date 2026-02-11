@@ -3,9 +3,11 @@ export interface SimulationConfig {
   fps: number;
   num_rays: number;
   num_iterations: number;
-  floor_material: string;
-  wall_material: string;
-  roof_material: string;
+  materials: {
+    floor: string;
+    wall: string;
+    roof: string;
+  }
   // Dimensions determined by the bounding box of the GLB
   area_x?: number;
   area_y?: number;
