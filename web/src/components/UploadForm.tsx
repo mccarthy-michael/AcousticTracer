@@ -104,7 +104,7 @@ export default function UploadForm({ onClose }: UploadFormProps) {
 
           <button
             disabled={isUploading}
-            className="w-full mt-4 px-4 py-3 rounded-lg bg-button-primary text-white font-semibold text-sm transition-colors cursor-pointer border-none hover:bg-button-hover focus-visible:outline-2 focus-visible:outline-button-primary focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center"
+            className="w-full mt-4 px-4 py-3 rounded-lg bg-button-primary text-white font-semibold text-sm cursor-pointer border-none hover:bg-button-hover focus-visible:outline-2 focus-visible:outline-button-primary focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center"
           >
             {isUploading ? "Uploading..." : "Continue to Editor"}
           </button>

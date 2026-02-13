@@ -78,5 +78,6 @@ export default function VoxelGrid() {
         depthWrite={false}
       />
     </instancedMesh>
+    
   );
 }

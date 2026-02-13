@@ -36,6 +36,7 @@ export default function Scene() {
 
   // Use store for state
   const setVoxelSize = useSceneStore((state) => state.setVoxelSize);
+  const setBounds = useSceneStore((state) => state.setBounds);
   const pendingFile = useSceneStore((state) => state.pendingFile);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function Scene() {
         let details: any = null;
 
         if (id === "new") {
+          setVoxelSize(0.5)
           // Local file mode
           if (!pendingFile) {
             throw new Error("No file selected. Please upload a file first.");
@@ -94,7 +96,7 @@ export default function Scene() {
         URL.revokeObjectURL(viewState.modelUrl);
       }
     };
-  }, [id, searchParams, setVoxelSize]); // omitted pendingFile to avoid reload loops
+  }, [id, searchParams, setVoxelSize, setBounds, pendingFile]); // Include pendingFile to detect file changes
 
   const { loading, submitting, error, modelUrl, simDetails } = viewState;
 
@@ -207,8 +209,8 @@ export default function Scene() {
               <div className="absolute top-4 left-4 w-50 z-10">
                 <ConfigPanel isEditable={simDetails?.status === "staging"} />
               </div>
-
               <SceneCanvas modelUrl={modelUrl} />
+              <div></div>
             </div>
           )}
         </div>
