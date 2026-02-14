@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useUser } from "@/features/auth/context/user-store";
 import UploadForm from "../components/upload-form";
-import { listSimulations, deleteRow } from "@/api/simulations";
+import { listSimulations, deleteRow, deleteFile } from "@/api/simulations";
 
 export default function Dashboard() {
   const { logout, current } = useUser();
@@ -20,9 +20,10 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, fileId: string) => {
     try {
       await deleteRow(id);
+      await deleteFile(fileId);
       loadData();
     } catch (err) {
       console.error(err);
@@ -162,7 +163,7 @@ export default function Dashboard() {
                           aria-label="Delete"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(sim.$id);
+                            handleDelete(sim.$id, sim.input_file_id);
                           }}
                         >
                           &times;

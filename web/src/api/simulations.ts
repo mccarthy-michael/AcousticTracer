@@ -1,64 +1,49 @@
 import { ID, Query } from "appwrite";
-import { tablesDB, storage, account } from "../lib/appwrite";
-import type { SimulationConfig } from "../features/simulation/types";
+import { tablesDB, storage, account } from "@/lib/appwrite";
+import type { Simulation, SimulationConfig } from "@/features/simulation/types";
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const TABLE_ID = import.meta.env.VITE_APPWRITE_TABLE_ID_SIMULATIONS;
 const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID_SIMULATIONS;
 
 export async function uploadSimulationFile(file: File) {
-  try {
-    const uploadedFile = await storage.createFile({
-      bucketId: BUCKET_ID,
-      fileId: ID.unique(),
-      file: file,
-    });
-    return uploadedFile;
-  } catch (error) {
-    console.error("File Upload Failed:", error);
-    throw error;
-  }
+  return await storage.createFile({
+    bucketId: BUCKET_ID,
+    fileId: ID.unique(),
+    file: file,
+  });
 }
 
-export type CreateSimulationParams = SimulationConfig & {
-  name: string;
-  file_id: string;
-};
-
-export async function createSimulationFromExisting(
-  config: CreateSimulationParams,
+export async function createSimulationRow(
+  fileId: string,
+  name: string,
+  config: SimulationConfig,
+  dimensions: { x: number; y: number; z: number },
 ) {
-  try {
-    const user = await account.get();
-    console.log("Creating database entry for existing file:", config.file_id);
+  const user = await account.get();
 
-    const row = await tablesDB.createRow({
-      databaseId: DATABASE_ID,
-      tableId: TABLE_ID,
-      rowId: ID.unique(),
-      data: {
-        name: config.name,
-        status: "pending",
-        user_id: user.$id,
-        input_file_id: config.file_id,
-        voxel_size: Number(config.voxel_size),
-        fps: Number(config.fps),
-        num_rays: Number(config.num_rays),
-        num_iterations: Number(config.num_iterations),
-        floor_material: config.materials.floor,
-        wall_material: config.materials.wall,
-        roof_material: config.materials.roof,
-        area_x: Number(config.area_x),
-        area_y: Number(config.area_y),
-        area_z: Number(config.area_z),
-      },
-    });
-
-    return row;
-  } catch (error) {
-    console.error("Simulation Creation Failed:", error);
-    throw error;
-  }
+  return await tablesDB.createRow({
+    databaseId: DATABASE_ID,
+    tableId: TABLE_ID,
+    rowId: ID.unique(),
+    data: {
+      name: name,
+      status: "pending",
+      user_id: user.$id,
+      input_file_id: fileId,
+      // Map camelCase -> snake_case
+      voxel_size: config.voxelSize,
+      fps: config.fps,
+      num_rays: config.numRays,
+      num_iterations: config.numIterations,
+      floor_material: config.materials.floor,
+      wall_material: config.materials.wall,
+      roof_material: config.materials.roof,
+      area_x: dimensions.x,
+      area_y: dimensions.y,
+      area_z: dimensions.z,
+    },
+  });
 }
 
 export async function listSimulations() {
@@ -109,4 +94,16 @@ export function getFileView(fileId: string) {
     bucketId: BUCKET_ID,
     fileId: fileId,
   });
+}
+
+export async function deleteFile(fileId: string) {
+  try {
+    return await storage.deleteFile({
+      bucketId: BUCKET_ID,
+      fileId: fileId,
+    });
+  } catch (error) {
+    console.error("Delete file failed,", error);
+    throw error;
+  }
 }

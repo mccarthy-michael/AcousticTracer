@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   getSimulation,
   getFileView,
-  createSimulationFromExisting,
+  createSimulationRow,
   uploadSimulationFile,
 } from "@/api/simulations";
 import { type Simulation } from "../types";
@@ -107,14 +107,13 @@ export default function Scene() {
   const handleStartSimulation = async () => {
     if (!bounds) return;
 
-    try {
-      setViewState((prev) => ({ ...prev, submitting: true }));
+    setViewState((prev) => ({ ...prev, submitting: true }));
 
-      let fileId = simDetails?.input_file_id;
+    try {
+      let fileId = simDetails?.inputFileId;
 
       // If no file ID, we need to upload the local file first
-      if (!fileId && id === "new") {
-        if (!pendingFile) throw new Error("File lost. Please re-upload.");
+      if (!fileId && pendingFile) {
         console.log("Uploading file to storage...");
         const uploadedFile = await uploadSimulationFile(pendingFile);
         fileId = uploadedFile.$id;
@@ -125,22 +124,12 @@ export default function Scene() {
       const size = new THREE.Vector3();
       bounds.getSize(size);
 
-      await createSimulationFromExisting({
-        name: simDetails?.name || "Untitled Simulation",
-        file_id: fileId,
-        voxel_size: config.voxelSize,
-        fps: config.fps,
-        num_rays: config.numRays,
-        num_iterations: config.numIterations,
-        materials: {
-          floor: config.materials.floor,
-          wall: config.materials.wall,
-          roof: config.materials.roof,
-        },
-        area_x: size.x,
-        area_y: size.y,
-        area_z: size.z,
-      });
+      await createSimulationRow(
+        fileId,
+        simDetails?.name || "Untitled",
+        config,
+        { x: size.x, y: size.y, z: size.z },
+      );
 
       // Redirect to dashboard or reload to view 'pending' state
       navigate("/dashboard");
