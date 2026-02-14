@@ -5,13 +5,13 @@ import {
   getFileView,
   createSimulationFromExisting,
   uploadSimulationFile,
-} from "../api/simulations";
-import { type Simulation } from "../types/meta";
-import SceneCanvas from "../r3f/SceneCanvas";
-import SimDetails from "../components/SimDetails";
-import ConfigPanel from "../components/ConfigPanel";
+} from "@/api/simulations";
+import { type Simulation } from "../types";
+import SceneCanvas from "../components/scene-viewer";
+import SimDetails from "../components/sim-details";
+import ConfigPanel from "../components/config-panel";
 import * as THREE from "three";
-import { useSceneStore } from "../stores/useSceneStore";
+import { useSceneStore } from "../stores/scene-store";
 
 export default function Scene() {
   const { id } = useParams();
@@ -50,7 +50,7 @@ export default function Scene() {
         let details: any = null;
 
         if (id === "new") {
-          setVoxelSize(0.5)
+          setVoxelSize(0.5);
           // Local file mode
           if (!pendingFile) {
             throw new Error("No file selected. Please upload a file first.");

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { uploadSimulationFile } from "../api/simulations";
+import { uploadSimulationFile } from "../../../api/simulations";
 import { useNavigate } from "react-router";
-import { useSceneStore } from "../stores/useSceneStore";
+import { useSceneStore } from "../stores/scene-store";
 
 interface UploadFormProps {
   onClose?: () => void;

@@ -1,4 +1,4 @@
-import { useSceneStore } from "../stores/useSceneStore";
+import { useSceneStore } from "../stores/scene-store";
 import * as THREE from "three";
 
 export default function ConfigPanel({

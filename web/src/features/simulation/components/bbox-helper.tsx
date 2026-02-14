@@ -1,6 +1,4 @@
-import { Box3Helper } from "three";
-import { useSceneStore } from "../stores/useSceneStore";
-
+import { useSceneStore } from "../stores/scene-store";
 export default function BoundBoxHelper() {
   const bounds = useSceneStore((state) => state.bounds);
 

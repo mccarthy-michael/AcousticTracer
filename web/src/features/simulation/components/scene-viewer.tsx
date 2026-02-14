@@ -1,7 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
-  Center,
   useGLTF,
   Bounds,
   Html,
@@ -9,8 +8,8 @@ import {
 } from "@react-three/drei";
 import { Suspense, useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { useSceneStore } from "../stores/useSceneStore";
-import VoxelGrid from "./VoxelInstancedMesh";
+import { useSceneStore } from "../stores/scene-store";
+import VoxelGrid from "./voxel-grid";
 // import BoundBoxHelper from "./BoundBoxHelper";
 
 interface SceneCanvasProps {

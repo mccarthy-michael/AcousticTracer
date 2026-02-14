@@ -1,7 +1,6 @@
 import { useRef, useMemo, useLayoutEffect } from "react";
 import * as THREE from "three";
-import { useSceneStore } from "../stores/useSceneStore";
-
+import { useSceneStore } from "../stores/scene-store";
 export default function VoxelGrid() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
@@ -78,6 +77,5 @@ export default function VoxelGrid() {
         depthWrite={false}
       />
     </instancedMesh>
-    
   );
 }
