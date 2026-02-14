@@ -6,8 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { account } from "../appwrite";
-
+import { account } from "@/lib/appwrite";
 interface UserContextType {
   current: Models.User<Models.Preferences> | null;
   isLoading: boolean;
@@ -49,7 +48,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   async function register(email: any, password: any, name: any) {
-
     try {
       const user = await account.create({
         userId: ID.unique(),
@@ -78,7 +76,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     init();
   }, []);
-
   return (
     <UserContext.Provider
       value={{ current: user, isLoading, login, logout, register }}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useUser } from "../lib/context/user";
-import UploadForm from "../components/UploadForm";
-import { listSimulations, deleteRow } from "../api/simulations";
+import { useUser } from "@/features/auth/context/user-store";
+import UploadForm from "../components/upload-form";
+import { listSimulations, deleteRow } from "@/api/simulations";
 
 export default function Dashboard() {
   const { logout, current } = useUser();

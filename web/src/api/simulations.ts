@@ -1,6 +1,6 @@
 import { ID, Query } from "appwrite";
 import { tablesDB, storage, account } from "../lib/appwrite";
-import type { SimulationConfig } from "../types/meta";
+import type { SimulationConfig } from "../features/simulation/types";
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const TABLE_ID = import.meta.env.VITE_APPWRITE_TABLE_ID_SIMULATIONS;

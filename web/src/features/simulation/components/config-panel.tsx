@@ -1,4 +1,4 @@
-import { useSceneStore } from "../stores/useSceneStore";
+import { useSceneStore } from "../stores/scene-store";
 import * as THREE from "three";
 
 export default function ConfigPanel({
@@ -8,7 +8,6 @@ export default function ConfigPanel({
 }) {
   const voxelSize = useSceneStore((state) => state.config.voxelSize);
   const setVoxelSize = useSceneStore((state) => state.setVoxelSize);
-
   const showGrid = useSceneStore((state) => state.showGrid);
   const setShowGrid = useSceneStore((state) => state.setShowGrid);
 

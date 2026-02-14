@@ -1,7 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
-  Center,
   useGLTF,
   Bounds,
   Html,
@@ -9,8 +8,9 @@ import {
 } from "@react-three/drei";
 import { Suspense, useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { useSceneStore } from "../stores/useSceneStore";
-import VoxelGrid from "./VoxelInstancedMesh";
+import { useSceneStore } from "../stores/scene-store";
+import VoxelGrid from "./voxel-grid";
+// import BoundBoxHelper from "./BoundBoxHelper";
 
 interface SceneCanvasProps {
   modelUrl: string | null;
@@ -44,7 +44,7 @@ function Model({
       const box = new THREE.Box3().setFromObject(clonedScene);
       onLoad(box);
     }
-  }, [clonedScene, onLoad]);
+  }, [clonedScene, onLoad]); // Include url to force recalculation when model changes
   return <primitive object={clonedScene} />;
 }
 
@@ -52,7 +52,6 @@ export default function SceneCanvas({ modelUrl }: SceneCanvasProps) {
   const setBounds = useSceneStore((state) => state.setBounds);
   const bounds = useSceneStore((state) => state.bounds);
   const showGrid = useSceneStore((state) => state.showGrid);
-
   if (!modelUrl) return null;
 
   return (
@@ -60,11 +59,11 @@ export default function SceneCanvas({ modelUrl }: SceneCanvasProps) {
       <ambientLight intensity={0.7} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <Suspense fallback={<Loader />}>
-        <Bounds fit clip observe margin={1.5}>
-          <Center>
-            <Model url={modelUrl} onLoad={setBounds} />
-            {bounds && showGrid && <VoxelGrid />}
-          </Center>
+        {/* <Bounds fit clip observe margin={1.5}> */}
+        <Bounds fit observe clip margin={2}>
+          <Model url={modelUrl} onLoad={setBounds} />
+          {bounds && showGrid && <VoxelGrid />}
+          {/* <BoundBoxHelper /> */}
         </Bounds>
       </Suspense>
       <OrbitControls makeDefault />
