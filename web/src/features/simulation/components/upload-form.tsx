@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { uploadSimulationFile } from "../../../api/simulations";
 import { useNavigate } from "react-router";
 import { useSceneStore } from "../stores/scene-store";
 
