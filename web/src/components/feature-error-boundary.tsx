@@ -1,29 +1,24 @@
-import { type FallbackProps, ErrorBoundary } from "react-error-boundary";
+import { type FallbackProps } from "react-error-boundary";
 import { useNavigate } from "react-router";
 
-interface FeatureErrorFallbackProps extends FallbackProps {
-  featureName: string;
-}
-
-function FeatureErrorFallback({
+export const FeatureErrorFallback = ({
   error,
   resetErrorBoundary,
-  featureName,
-}: FeatureErrorFallbackProps) {
+}: FallbackProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-bg-primary p-4 text-text-primary">
-      <div className="w-full max-w-md rounded-xl border border-yellow-500/20 bg-bg-card p-8 shadow-xl">
-        <div className="mb-6 flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-500/10">
+    <div className="flex h-full w-full items-center justify-center p-8">
+      <div className="w-full max-w-lg rounded-lg border border-red-500/20 bg-bg-card p-6 shadow-lg">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="h-7 w-7 text-yellow-500"
+              className="h-5 w-5 text-red-500"
             >
               <path
                 strokeLinecap="round"
@@ -32,61 +27,47 @@ function FeatureErrorFallback({
               />
             </svg>
           </div>
+          <h2 className="text-lg font-bold text-text-primary">
+            Something went wrong
+          </h2>
         </div>
 
-        <h2 className="mb-2 text-center text-lg font-bold text-text-primary">
-          {featureName} Error
-        </h2>
-
-        <p className="mb-4 text-center text-xs text-text-secondary">
+        <p className="mb-4 text-sm text-text-secondary">
           This feature encountered an error. You can try again or return to the
           dashboard.
         </p>
 
-        {/* Error Details */}
-        <div className="mb-4 max-h-24 overflow-y-auto rounded bg-black/20 p-2 font-mono text-xs text-yellow-400">
-          {error instanceof Error ? error.message : String(error)}
-        </div>
+        {/* Error message (collapsible details) */}
+        <details className="mb-4 rounded bg-black/20 p-3">
+          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-text-secondary hover:text-text-primary">
+            Error Details
+          </summary>
+          <pre className="mt-2 overflow-x-auto text-xs text-red-400">
+            {error instanceof Error ? error.message : String(error)}
+            {error instanceof Error && error.stack && (
+              <div className="mt-2 text-xs text-red-300/60">{error.stack}</div>
+            )}
+          </pre>
+        </details>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex gap-3">
           <button
             onClick={resetErrorBoundary}
-            className="w-full rounded-lg bg-button-primary px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-hover focus:outline-none focus:ring-2 focus:ring-button-primary/50"
+            className="flex-1 rounded-lg bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-hover"
           >
             Try Again
           </button>
-
           <button
-            onClick={() => navigate("/dashboard")}
-            className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-white/5 hover:text-text-primary"
+            onClick={() => {
+              resetErrorBoundary();
+              navigate("/dashboard");
+            }}
+            className="flex-1 rounded-lg border border-white/10 bg-transparent px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-white/5 hover:text-text-primary"
           >
-            Back to Dashboard
+            Go to Dashboard
           </button>
         </div>
       </div>
     </div>
   );
-}
-
-interface FeatureErrorBoundaryProps {
-  children: React.ReactNode;
-  featureName: string;
-}
-
-export function FeatureErrorBoundary({
-  children,
-  featureName,
-}: FeatureErrorBoundaryProps) {
-  return (
-    <ErrorBoundary
-      FallbackComponent={(props) => (
-        <FeatureErrorFallback {...props} featureName={featureName} />
-      )}
-      onReset={() => {
-        window.location.reload();
-      }}
-    >
-      {children}
-    </ErrorBoundary>
-  );
-}
+};
