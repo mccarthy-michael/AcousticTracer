@@ -1,144 +1,181 @@
 import { useParams, useNavigate, useSearchParams } from "react-router";
-import { useEffect, useState } from "react";
-import {
-  getSimulation,
-  getFileView,
-  createSimulationRow,
-  uploadSimulationFile,
-} from "@/api/simulations";
-import { type Simulation } from "../types";
+import { useCreateSimulation, useSimulationDetail, useUploadSimulationFile } from "@/api/simulations";
 import SceneCanvas from "../components/scene-viewer";
 import SimDetails from "../components/sim-details";
 import ConfigPanel from "../components/config-panel";
 import * as THREE from "three";
 import { useSceneStore } from "../stores/scene-store";
+import { Suspense, useEffect, useMemo } from "react";
+import { useUser } from "@/features/auth/context/user-store";
 
 export default function Scene() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { current } = useUser
+  const uploadMutation = useUploadSimulationFile
+  const createMutation = useCreateSimulation
 
-  // Different data states
-  const [viewState, setViewState] = useState<{
-    loading: boolean;
-    submitting: boolean;
-    error: string | null;
-    modelUrl: string | null;
-    // It can be a full Simulation (from DB) or a Staging Draft (Partial)
-    simDetails: Simulation | Partial<Simulation> | null;
-  }>({
-    loading: true,
-    submitting: false,
-    error: null,
-    modelUrl: null,
-    simDetails: null,
-  });
+  const { data: simulation, isLoading, error } = useSimulationDetail(id);
+
+
+  // // Different data states
+  // const [viewState, setViewState] = useState<{
+  //   loading: boolean;
+  //   submitting: boolean;
+  //   error: string | null;
+  //   modelUrl: string | null;
+  //   // It can be a full Simulation (from DB) or a Staging Draft (Partial)
+  //   simDetails: Simulation | Partial<Simulation> | null;
+  // }>({
+  //   loading: true,
+  //   submitting: false,
+  //   error: null,
+  //   modelUrl: null,
+  //   simDetails: null,
+  // });
 
   // Use store for state
   const setVoxelSize = useSceneStore((state) => state.setVoxelSize);
   const setBounds = useSceneStore((state) => state.setBounds);
   const pendingFile = useSceneStore((state) => state.pendingFile);
 
-  useEffect(() => {
-    async function load() {
-      if (!id) return;
-
-      setViewState((prev) => ({ ...prev, loading: true, error: null }));
-
-      try {
-        let url: string | null = null;
-        let details: any = null;
-
-        if (id === "new") {
-          setVoxelSize(0.5);
-          // Local file mode
-          if (!pendingFile) {
-            throw new Error("No file selected. Please upload a file first.");
-          }
-
-          url = URL.createObjectURL(pendingFile);
-          details = {
-            name: searchParams.get("name") || "New Simulation",
-            status: "staging",
-            input_file_id: null,
-          };
-        } else {
-          details = await getSimulation(id);
-          if (details.input_file_id) {
-            url = getFileView(details.input_file_id);
-          }
-          // Update config state here if needed
-          if (details.voxel_size) {
-            setVoxelSize(details.voxel_size);
-          }
-        }
-
-        setViewState({
-          loading: false,
-          submitting: false,
-          error: null,
-          modelUrl: url,
-          simDetails: details,
-        });
-      } catch (err: any) {
-        setViewState((prev) => ({
-          ...prev,
-          loading: false,
-          error: err.message,
-        }));
-      }
+  const simDetails = useMemo(() => {
+    if (id === "new") {
+      return {
+        name: searchParams.get("name") || "New Simulation",
+        status: "staging" as const,
+        inputFileId: null,
+      };
     }
-    load();
+    return simulation;
+  }, [id, searchParams, simulation]);
 
-    // Cleanup blob URL
-    return () => {
-      if (id === "new" && viewState.modelUrl) {
-        URL.revokeObjectURL(viewState.modelUrl);
-      }
-    };
-  }, [id, searchParams, setVoxelSize, setBounds, pendingFile]); // Include pendingFile to detect file changes
+  const modelUrl = useMemo(() => {
+    if (id === "new" && pendingFile) {
+      const url = URL.createObjectURL(pendingFile);
+      return { url };
+    }
+    return null;
+  }, [id, pendingFile, simulation]);
 
-  const { loading, submitting, error, modelUrl, simDetails } = viewState;
+  useEffect(() => {
+    if (simulation?.config?.voxelSize) {
+      setVoxelSize(simulation.config.voxelSize);
+    }
+  }, [simulation?.config?.voxelSize, setVoxelSize]);
+
+  // useEffect(() => {
+  //   async function load() {
+  //     if (!id) return;
+
+  //     setViewState((prev) => ({ ...prev, loading: true, error: null }));
+
+  //     try {
+  //       let url: string | null = null;
+  //       let details: any = null;
+
+  //       if (id === "new") {
+  //         setVoxelSize(0.5);
+  //         // Local file mode
+  //         if (!pendingFile) {
+  //           throw new Error("No file selected. Please upload a file first.");
+  //         }
+
+  //         url = URL.createObjectURL(pendingFile);
+  //         details = {
+  //           name: searchParams.get("name") || "New Simulation",
+  //           status: "staging",
+  //           input_file_id: null,
+  //         };
+  //       } else {
+  //         details = await getSimulation(id);
+  //         if (details.input_file_id) {
+  //           url = getFileView(details.input_file_id);
+  //         }
+  //         // Update config state here if needed
+  //         if (details.voxel_size) {
+  //           setVoxelSize(details.voxel_size);
+  //         }
+  //       }
+
+  //       setViewState({
+  //         loading: false,
+  //         submitting: false,
+  //         error: null,
+  //         modelUrl: url,
+  //         simDetails: details,
+  //       });
+  //     } catch (err: any) {
+  //       setViewState((prev) => ({
+  //         ...prev,
+  //         loading: false,
+  //         error: err.message,
+  //       }));
+  //     }
+  //   }
+  //   load();
+
+  //   // Cleanup blob URL
+  //   return () => {
+  //     if (id === "new" && viewState.modelUrl) {
+  //       URL.revokeObjectURL(viewState.modelUrl);
+  //     }
+  //   };
+  // }, [id, searchParams, setVoxelSize, setBounds, pendingFile]); // Include pendingFile to detect file changes
+
+  // const { loading, submitting, error, modelUrl, simDetails } = viewState;
 
   // Use store for bounds and config
   const bounds = useSceneStore((state) => state.bounds);
   const config = useSceneStore((state) => state.config);
 
   const handleStartSimulation = async () => {
-    if (!bounds) return;
+    if (!bounds || !current?.$id) return;
+    try{
+      let fileId = simDetails?.inputFileId
 
-    setViewState((prev) => ({ ...prev, submitting: true }));
-
-    try {
-      let fileId = simDetails?.inputFileId;
-
-      // If no file ID, we need to upload the local file first
-      if (!fileId && pendingFile) {
-        console.log("Uploading file to storage...");
-        const uploadedFile = await uploadSimulationFile(pendingFile);
-        fileId = uploadedFile.$id;
+      if (!fileId && pendingFile){
+        const uplaodedFile = await uploadMutation.mutateAsync(pendingFile)
       }
-
-      if (!fileId) throw new Error("No file ID available");
-
-      const size = new THREE.Vector3();
-      bounds.getSize(size);
-
-      await createSimulationRow(
-        fileId,
-        simDetails?.name || "Untitled",
-        config,
-        { x: size.x, y: size.y, z: size.z },
-      );
-
-      // Redirect to dashboard or reload to view 'pending' state
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to start simulation");
-      setViewState((prev) => ({ ...prev, submitting: false }));
     }
-  };
+  }
+
+  // const handleStartSimulation = async () => {
+  //   if (!bounds) return;
+
+  //   setViewState((prev) => ({ ...prev, submitting: true }));
+
+  //   try {
+  //     let fileId = simDetails?.inputFileId;
+
+  //     // If no file ID, we need to upload the local file first
+  //     if (!fileId && pendingFile) {
+  //       console.log("Uploading file to storage...");
+  //       const uploadedFile = await uploadSimulationFile(pendingFile);
+  //       fileId = uploadedFile.$id;
+  //     }
+
+  //     if (!fileId) throw new Error("No file ID available");
+
+  //     const size = new THREE.Vector3();
+  //     bounds.getSize(size);
+
+  //     await createSimulationRow(
+  //       fileId,
+  //       simDetails?.name || "Untitled",
+  //       config,
+  //       { x: size.x, y: size.y, z: size.z },
+  //     );
+
+  //     // Redirect to dashboard or reload to view 'pending' state
+  //     navigate("/dashboard");
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Failed to start simulation");
+  //     setViewState((prev) => ({ ...prev, submitting: false }));
+  //   }
+  // };
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary overflow-hidden">
