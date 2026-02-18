@@ -11,14 +11,16 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { data, isLoading, error } = useSimulationsList(current?.$id || "");
+  const { data, isLoading, error, refetch } = useSimulationsList(
+    current?.$id || "",
+  );
   const deleteMutation = useDeleteSimulation();
   const simulations = data?.simulations || [];
   const handleDelete = async (id: string, fileId: string) => {
     try {
       await deleteMutation.mutateAsync({ id, fileId });
     } catch (err) {
-      console.error("Delete failed: ",err);
+      console.error("Delete failed: ", err);
     }
   };
 
@@ -110,7 +112,34 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {simulations.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="text-center px-6 py-5 text-text-secondary"
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin">⏳</div>
+                        <span>Loading simulations...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="text-center px-6 py-5 text-danger"
+                    >
+                      Failed to load simulations: {error.message}
+                      <button
+                        onClick={() => refetch()}
+                        className="ml-2 underline hover:no-underline"
+                      >
+                        Retry
+                      </button>
+                    </td>
+                  </tr>
+                ) : simulations.length === 0 ? (
                   <tr>
                     <td
                       colSpan={8}
