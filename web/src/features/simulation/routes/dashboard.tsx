@@ -1,30 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useUser } from "@/features/auth/context/user-store";
 import UploadForm from "../components/upload-form";
-import { listSimulations, deleteRow, deleteFile } from "@/api/simulations";
-
+import { useDeleteSimulation, useSimulationsList } from "../api/use-simulation-hooks";
 export default function Dashboard() {
   const { logout, current } = useUser();
   const navigate = useNavigate();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [simulations, setSimulations] = useState<any[]>([]);
+  const { data, isLoading, error } = useSimulationsList(current?.$id || "");
+  const deleteMutation = useDeleteSimulation();
 
-  const loadData = async () => {
-    const data = await listSimulations();
-    setSimulations(data.rows);
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
+  const simulations = data?.simulations || [];
   const handleDelete = async (id: string, fileId: string) => {
     try {
-      await deleteRow(id);
-      await deleteFile(fileId);
-      loadData();
+      await deleteMutation.mutateAsync({ id, fileId });
     } catch (err) {
       console.error(err);
     }
