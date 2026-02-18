@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useUser } from "@/features/auth/context/user-store";
 import UploadForm from "../components/upload-form";
-import { useDeleteSimulation, useSimulationsList } from "../api/use-simulation-hooks";
+import {
+  useDeleteSimulation,
+  useSimulationsList,
+} from "../api/use-simulation-hooks";
 export default function Dashboard() {
   const { logout, current } = useUser();
   const navigate = useNavigate();
@@ -10,13 +13,12 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { data, isLoading, error } = useSimulationsList(current?.$id || "");
   const deleteMutation = useDeleteSimulation();
-
   const simulations = data?.simulations || [];
   const handleDelete = async (id: string, fileId: string) => {
     try {
       await deleteMutation.mutateAsync({ id, fileId });
     } catch (err) {
-      console.error(err);
+      console.error("Delete failed: ",err);
     }
   };
 
@@ -78,10 +80,18 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="px-8 pt-8 pb-4">
+        <header className="flex flex-row justify-between items-center px-8 pt-8 pb-4">
           <h1 className="m-0 font-bold text-text-primary text-3xl">
             Acoustic Tracer
           </h1>
+          {!isUploadOpen && (
+            <button
+              className="px-4 py-2.5 rounded-lg bg-button-primary text-white font-semibold text-sm transition-colors cursor-pointer border-none hover:bg-button-hover focus-visible:outline-2 focus-visible:outline-button-primary focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={() => setIsUploadOpen(true)}
+            >
+              Create new simulation
+            </button>
+          )}
         </header>
 
         <main className="flex-1 overflow-y-auto px-8 pb-8">
@@ -136,16 +146,16 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-5 align-middle text-text-secondary leading-snug">
-                        {sim.voxel_size} m
+                        {sim.config.voxelSize} m
                       </td>
                       <td className="px-6 py-5 align-middle text-text-secondary leading-snug">
-                        {sim.fps}
+                        {sim.config.fps}
                       </td>
                       <td className="px-6 py-5 align-middle text-text-secondary leading-snug">
-                        {sim.num_rays.toLocaleString()}
+                        {sim.config.numRays.toLocaleString()}
                       </td>
                       <td className="px-6 py-5 align-middle text-text-secondary leading-snug">
-                        {sim.num_iterations}
+                        {sim.config.numIterations}
                       </td>
                       <td className="px-6 py-5 align-middle text-text-secondary leading-snug rounded-r-lg text-right">
                         <button
@@ -153,7 +163,7 @@ export default function Dashboard() {
                           aria-label="Delete"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(sim.$id, sim.input_file_id);
+                            handleDelete(sim.$id, sim.inputFileId);
                           }}
                         >
                           &times;
@@ -164,22 +174,11 @@ export default function Dashboard() {
                 )}
               </tbody>
             </table>
-            {!isUploadOpen && (
-              <div className="flex justify-center mt-12 mb-8">
-                <button
-                  className="px-4 py-2.5 rounded-lg bg-button-primary text-white font-semibold text-sm transition-colors cursor-pointer border-none hover:bg-button-hover focus-visible:outline-2 focus-visible:outline-button-primary focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                  onClick={() => setIsUploadOpen(true)}
-                >
-                  Create new simulation
-                </button>
-              </div>
-            )}
           </div>
           {isUploadOpen && (
             <UploadForm
               onClose={() => {
                 setIsUploadOpen(false);
-                loadData();
               }}
             />
           )}

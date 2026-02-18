@@ -37,15 +37,17 @@ export const FeatureErrorFallback = ({
           dashboard.
         </p>
 
-        {/* Error message (collapsible details) */}
+        {/* Error message */}
         <details className="mb-4 rounded bg-black/20 p-3">
-          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-text-secondary hover:text-text-primary">
+          <summary className="cursor-pointer text-xs max-w-2xl font-semibold uppercase tracking-wide text-text-secondary hover:text-text-primary">
             Error Details
           </summary>
-          <pre className="mt-2 overflow-x-auto text-xs text-red-400">
+          <pre className="mt-2 whitespace-pre-wrap wrap-break-words text-xs text-red-400">
             {error instanceof Error ? error.message : String(error)}
             {error instanceof Error && error.stack && (
-              <div className="mt-2 text-xs text-red-300/60">{error.stack}</div>
+              <div className="mt-2 whitespace-pre-wrap wrap-break-words text-xs text-red-300/60">
+                {error.stack}
+              </div>
             )}
           </pre>
         </details>
