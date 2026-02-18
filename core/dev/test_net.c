@@ -45,11 +45,19 @@ int main()
 
     cJSON *json = NULL;
     AT_simulation_to_json(&json, sim);
+    AT_handle_result(res, "Error converting simulation to JSON\n");
 
-    char *print = cJSON_Print(json);
-    printf("%s\n", print);
-    free(print);
+    int http_status = 0;
+    AT_NetworkConfig net_conf = {
+        .http_status_out = &http_status,
+        .timeout_ms = 1000,
+        .url = "http://0.0.0.0:80/post"
+    };
 
+    res = AT_send_json_to_url(json, &net_conf);
+    AT_handle_result(res, "Error sending JSON to url\n");
+
+    printf("HTTP STATUS: %d\n", *net_conf.http_status_out);
 
     AT_scene_destroy(scene);
     AT_simulation_destroy(sim);
