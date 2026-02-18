@@ -19,6 +19,7 @@ typedef enum {
   AT_ERR_INVALID_ARGUMENT, /**< Incorrect arguments were given to the function.
                             */
   AT_ERR_ALLOC_ERROR,      /**< Memory allocation failed. */
+  AT_ERR_NETWORK_FAILURE   /**< Network failure.  */
 } AT_Result;
 
 /** \brief Defines possible material types.

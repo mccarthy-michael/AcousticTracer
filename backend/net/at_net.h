@@ -12,8 +12,6 @@ typedef struct
     const char *url;
     uint32_t timeout_ms;
     int *http_status_out;
-    char *response_buf;
-    size_t response_buf_size;
 } AT_NetworkConfig;
 
 AT_Result AT_simulation_to_json(

@@ -4,8 +4,8 @@
 
 int main()
 {
-    const char *filepath = "../assets/glb/Sponza.glb";
-    
+    const char *filepath = "../assets/glb/L_room_roof.glb";
+
     AT_Model *model = NULL;
     AT_Result res = AT_model_create(&model, filepath);
     AT_handle_result(res, "Error creating model\n");
@@ -15,7 +15,7 @@ int main()
         .intensity = 50.0f,
         .position = {0}
     };
-    
+
     AT_Source sources[1];
     sources[0] = s1;
 
@@ -25,7 +25,7 @@ int main()
         .num_sources = 1,
         .sources = sources
     };
-    
+
     AT_Scene *scene = NULL;
     res = AT_scene_create(&scene, &conf);
     AT_handle_result(res, "Error creating scene\n");
@@ -33,7 +33,7 @@ int main()
     AT_Settings settings = {
         .fps = 60,
         .num_rays = 1,
-        .voxel_size = 10
+        .voxel_size = 1
     };
 
     AT_Simulation *sim = NULL;
@@ -42,15 +42,15 @@ int main()
 
     res = AT_simulation_run(sim);
     AT_handle_result(res, "Error running simulation\n");
-    
+
     cJSON *json = NULL;
     AT_simulation_to_json(&json, sim);
-    
+
     char *print = cJSON_Print(json);
     printf("%s\n", print);
     free(print);
-    
-    
+
+
     AT_scene_destroy(scene);
     AT_simulation_destroy(sim);
     cJSON_Delete(json);
