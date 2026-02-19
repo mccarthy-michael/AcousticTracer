@@ -53,14 +53,13 @@ target_include_directories(at PRIVATE
 )
 
 # ---------------------------------------------------------
-# Math library
+#  Libraries
 # ---------------------------------------------------------
 target_link_libraries(at PRIVATE m)
 
 add_library(cjson STATIC core/external/cJSON.c)
 
 target_link_libraries(at PRIVATE cjson)
-
 # ---------------------------------------------------------
 # Optional raylib inclusion
 # ---------------------------------------------------------

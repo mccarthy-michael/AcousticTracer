@@ -1,13 +1,9 @@
 export interface SimulationConfig {
-  voxelSize: number;
+  modelPath: string;
+  material: string;
   fps: number;
   numRays: number;
-  numIterations: number;
-  materials: {
-    floor: string;
-    wall: string;
-    roof: string;
-  };
+  voxelSize: number;
 }
 
 export interface Simulation extends SimulationConfig {

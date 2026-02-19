@@ -12,8 +12,6 @@ typedef struct
     const char *url;
     uint32_t timeout_ms;
     int *http_status_out;
-    char *response_buf;
-    size_t response_buf_size;
 } AT_NetworkConfig;
 
 AT_Result AT_simulation_to_json(
@@ -25,5 +23,7 @@ AT_Result AT_send_json_to_url(
     cJSON *json,
     const AT_NetworkConfig *config
 );
+
+void AT_raytracer();
 
 #endif // AT_NET_N

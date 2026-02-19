@@ -1,18 +1,33 @@
 #include "at_net.h"
 #include "../../core/src/at_internal.h"
 #include "../../core/src/at_voxel.h"
+#include "acoustic/at.h"
+#include "acoustic/at_result.h"
+
+#include <asm-generic/socket.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+#define BUFFER_SIZE 4096
+
+typedef struct sockaddr_in sockaddr_in;
+typedef struct sockaddr sockaddr;
 
 AT_Result AT_simulation_to_json(cJSON **out_json, AT_Simulation *simulation)
 {
     if (!out_json || *out_json || !simulation) return AT_ERR_INVALID_ARGUMENT;
 
     size_t FRAME_NUM_BUFFER_LENGTH = sizeof(uint8_t);
-    cJSON *json = cJSON_CreateObject(); 
+    cJSON *json = cJSON_CreateObject();
 
     AT_Voxel* voxels = simulation->voxel_grid;
     uint32_t num_voxels = simulation->num_voxels;
     uint32_t num_bins = AT_voxel_get_num_bins(simulation);
-   
+
     for (uint32_t f = 0; f < num_bins; f++) {
 
         char frame_num[FRAME_NUM_BUFFER_LENGTH];
@@ -42,4 +57,194 @@ AT_Result AT_simulation_to_json(cJSON **out_json, AT_Simulation *simulation)
     }
     *out_json = json;
     return AT_OK;
+}
+
+
+void AT_raytracer()
+{
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    sockaddr_in address = {
+        .sin_family = AF_INET,
+        .sin_addr.s_addr = inet_addr("127.0.0.1"),
+        .sin_port = htons(8080)
+    };
+    bind(server_fd, (sockaddr*)&address, sizeof(address));
+    listen(server_fd, 4);
+    printf("Server running on 127.0.0.1:8080\n");
+
+    while (1) {
+        sockaddr_in client_addr;
+        socklen_t client_len = sizeof(client_addr);
+        int client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
+        if (client_fd < 0) continue;
+
+        // request headers
+        char buffer[BUFFER_SIZE] = {0};
+        int total = 0, bytes = 0;
+        while (total < BUFFER_SIZE - 1) {
+            bytes = read(client_fd, buffer + total, BUFFER_SIZE - 1 - total);
+            if (bytes <= 0) break;
+            total += bytes;
+            if (strstr(buffer, "\r\n\r\n")) break;
+        }
+
+        // CORS preflight options
+        if (strncmp(buffer, "OPTIONS /run", 12) == 0) {
+            const char *resp =
+                "HTTP/1.1 204 No Content\r\n"
+                "Access-Control-Allow-Origin: http://localhost:5173\r\n"
+                "Access-Control-Allow-Methods: POST, OPTIONS\r\n"
+                "Access-Control-Allow-Headers: content-type\r\n"
+                "Access-Control-Max-Age: 86400\r\n"
+                "Content-Length: 0\r\n"
+                "\r\n";
+            write(client_fd, resp, strlen(resp));
+            close(client_fd);
+            continue;
+        }
+
+        // POST
+        if (strncmp(buffer, "POST /run", 9) != 0) {
+            const char *err =
+                "HTTP/1.1 404 Not Found\r\n"
+                "Access-Control-Allow-Origin: http://localhost:5173\r\n"
+                "Access-Control-Allow-Methods: POST, OPTIONS\r\n"
+                "Access-Control-Allow-Headers: content-type\r\n"
+                "Content-Length: 0\r\n\r\n";
+            write(client_fd, err, strlen(err));
+            close(client_fd);
+            continue;
+        }
+
+        // find body start
+        char *body_start = strstr(buffer, "\r\n\r\n");
+        if (!body_start) {
+            const char *err =
+                "HTTP/1.1 400 Bad Request\r\n"
+                "Access-Control-Allow-Origin: http://localhost:5173\r\n"
+                "Access-Control-Allow-Methods: POST, OPTIONS\r\n"
+                "Access-Control-Allow-Headers: content-type\r\n"
+                "Content-Length: 0\r\n\r\n";
+            write(client_fd, err, strlen(err));
+            close(client_fd);
+            continue;
+        }
+        body_start += 4;
+
+        // parse the content-length
+        int content_length = 0;
+        char *cl = strstr(buffer, "Content-Length: ");
+        if (!cl) cl = strstr(buffer, "content-length: ");
+        if (cl) content_length = atoi(cl + 16);
+
+        int header_len = (int)(body_start - buffer);
+        int body_received = total - header_len;
+        while (body_received < content_length) {
+            int space = BUFFER_SIZE - 1 - header_len - body_received;
+            // body too large :/
+            if (space <= 0) break;
+            bytes = read(client_fd, buffer + header_len + body_received, space);
+            if (bytes <= 0) break;
+            body_received += bytes;
+        }
+        buffer[header_len + body_received] = '\0';
+
+        // parse config from JSON
+
+        char filename[256] = {0};
+        char filepath[512] = {0};
+        float voxel_size = 0.0f;
+        uint32_t num_rays = 0;
+        uint32_t fps = 0;
+
+        cJSON *cjson = cJSON_Parse(body_start);
+        cJSON *j;
+
+        j = cJSON_GetObjectItemCaseSensitive(cjson, "modelPath");
+        if (cJSON_IsString(j)) {
+            strncpy(filename, j->valuestring, sizeof(filename) - 1);
+            snprintf(filepath, sizeof(filepath), "../assets/glb/%s", filename);
+        }
+        j = cJSON_GetObjectItemCaseSensitive(cjson, "voxelSize");
+        if (cJSON_IsNumber(j)) {
+            voxel_size = (float)j->valuedouble;
+        }
+        j = cJSON_GetObjectItemCaseSensitive(cjson, "numRays");
+        if (cJSON_IsNumber(j)) {
+            num_rays = (uint32_t)j->valueint;
+        }
+        j = cJSON_GetObjectItemCaseSensitive(cjson, "fps");
+        if (cJSON_IsNumber(j)) {
+            fps = (uint32_t)j->valueint;
+        }
+
+        cJSON_Delete(cjson);
+
+        // run raytracer
+
+        AT_Model *model = NULL;
+        AT_Result res = AT_model_create(&model, filepath);
+        AT_handle_result(res, "Error creating model\n");
+
+        // TODO: Get source info from client
+        AT_Source s1 = {
+            .direction = {1, 0, 0},
+            .intensity = 50.0f,
+            .position = {0}
+        };
+
+        AT_Source sources[1];
+        sources[0] = s1;
+
+        AT_SceneConfig conf = {
+            .environment = model,
+            .material = AT_MATERIAL_PLASTIC,
+            .num_sources = 1,
+            .sources = sources
+        };
+
+        AT_Scene *scene = NULL;
+        res = AT_scene_create(&scene, &conf);
+        AT_handle_result(res, "Error creating scene\n");
+
+        AT_Settings settings = {
+            .fps = fps,
+            .num_rays = num_rays,
+            .voxel_size = voxel_size
+        };
+
+        AT_Simulation *sim = NULL;
+        res = AT_simulation_create(&sim, scene, &settings);
+        AT_handle_result(res, "Error creating simulation\n");
+
+        res = AT_simulation_run(sim);
+        AT_handle_result(res, "Error running simulation\n");
+
+        cJSON *sim_json = NULL;
+        res = AT_simulation_to_json(&sim_json, sim);
+        AT_handle_result(res, "Error converting simulation to JSON\n");
+        const char *json = cJSON_PrintUnformatted(sim_json);
+
+        char header[256];
+        snprintf(header, sizeof(header),
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: application/json\r\n"
+            "Access-Control-Allow-Origin: http://localhost:5173\r\n"
+            "Access-Control-Allow-Methods: POST, OPTIONS\r\n"
+            "Access-Control-Allow-Headers: content-type\r\n"
+            "Content-Length: %zu\r\n"
+            "\r\n",
+            strlen(json));
+        write(client_fd, header, strlen(header));
+        write(client_fd, json, strlen(json));
+        close(client_fd);
+
+        AT_scene_destroy(scene);
+        AT_simulation_destroy(sim);
+        cJSON_Delete(sim_json);
+    }
+
+    close(server_fd);
 }
