@@ -32,7 +32,7 @@ const router = createBrowserRouter([
       {
         index: true,
         element: (
-        <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
+          <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
             <Navigate to="/dashboard" replace />
           </ErrorBoundary>
         ),
@@ -46,7 +46,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "scene/:id",
+        path: "scene/:idOfFile",
         element: (
           <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
             <Scene />
