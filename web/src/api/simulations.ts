@@ -35,10 +35,10 @@ export async function createSimulationRow(
       voxel_size: config.voxelSize,
       fps: config.fps,
       num_rays: config.numRays,
-      num_iterations: config.numIterations,
-      floor_material: config.materials.floor,
-      wall_material: config.materials.wall,
-      roof_material: config.materials.roof,
+      num_iterations: 1,
+      floor_material: config.material,
+      wall_material: config.material,
+      roof_material: config.material,
       area_x: dimensions.x,
       area_y: dimensions.y,
       area_z: dimensions.z,
@@ -106,4 +106,19 @@ export async function deleteFile(fileId: string) {
     console.error("Delete file failed,", error);
     throw error;
   }
+}
+
+export async function runRaytracer(config: SimulationConfig) {
+  const response = await fetch("http://127.0.0.1:8080/run", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(config),
+  });
+
+  if (!response.ok) {
+    throw new Error("Raytracer Failed");
+  }
+  return await response.json();
 }

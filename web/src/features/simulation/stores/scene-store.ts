@@ -3,15 +3,11 @@ import * as THREE from "three";
 
 interface SceneState {
   config: {
+    modelPath: string;
     voxelSize: number;
     numRays: number;
-    numIterations: number;
     fps: number;
-    materials: {
-      floor: string;
-      wall: string;
-      roof: string;
-    };
+    material: string;
   };
   bounds: THREE.Box3 | null;
   showGrid: boolean;
@@ -21,20 +17,16 @@ interface SceneState {
   setBounds: (box: THREE.Box3) => void;
   setShowGrid: (visible: boolean) => void;
   setPendingFile: (file: File | null) => void;
-  setMaterial: (type: "floor" | "wall" | "roof", value: string) => void;
+  setMaterial: (value: string) => void;
 }
 
 export const useSceneStore = create<SceneState>()((set, get) => ({
   config: {
+    modelPath: "",
     voxelSize: 2,
     numRays: 10000,
-    numIterations: 100,
     fps: 60,
-    materials: {
-      floor: "concrete",
-      wall: "plaster",
-      roof: "acoustic_tile",
-    },
+    material: "Plastic",
   },
   bounds: null,
   showGrid: true,
@@ -47,12 +39,19 @@ export const useSceneStore = create<SceneState>()((set, get) => ({
     })),
   setBounds: (box) => set({ bounds: box }),
   setShowGrid: (visible) => set({ showGrid: visible }),
-  setPendingFile: (file) => set({ pendingFile: file }),
-  setMaterial: (type, value) =>
+  setPendingFile: (file) =>
+    set((state) => ({
+      pendingFile: file,
+      config: {
+        ...state.config,
+        modelPath: file ? file.name : state.config.modelPath,
+      },
+    })),
+  setMaterial: (value) =>
     set((state) => ({
       config: {
         ...state.config,
-        materials: { ...state.config.materials, [type]: value },
+        material: value,
       },
     })),
 }));

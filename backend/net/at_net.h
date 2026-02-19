@@ -24,4 +24,6 @@ AT_Result AT_send_json_to_url(
     const AT_NetworkConfig *config
 );
 
+void AT_raytracer();
+
 #endif // AT_NET_N

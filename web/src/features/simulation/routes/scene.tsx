@@ -5,6 +5,7 @@ import {
   getFileView,
   createSimulationRow,
   uploadSimulationFile,
+  runRaytracer,
 } from "@/api/simulations";
 import { type Simulation } from "../types";
 import SceneCanvas from "../components/scene-viewer";
@@ -132,6 +133,7 @@ export default function Scene() {
       );
 
       // Redirect to dashboard or reload to view 'pending' state
+      console.log(await runRaytracer(config));
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
