@@ -51,7 +51,7 @@ export default function Scene() {
   console.log("IdOfFile: ", idOfFile);
   const modelUrl = useMemo(() => {
     if (idOfFile === "new" && pendingFile) {
-      setVoxelSize(0.5)
+      setVoxelSize(0.5);
       return URL.createObjectURL(pendingFile);
     }
     if (simulation?.inputFileId) {
@@ -82,6 +82,7 @@ export default function Scene() {
       await createMutation.mutateAsync({
         userId: current.$id,
         name: simDetails?.name || "Untitled",
+        fileName: "test",
         fileId,
         config,
         dimensions: { x: size.x, y: size.y, z: size.z },
