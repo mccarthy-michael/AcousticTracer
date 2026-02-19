@@ -3,7 +3,6 @@
 #include "../../core/src/at_voxel.h"
 #include "acoustic/at.h"
 #include "acoustic/at_result.h"
-#include "cJSON.h"
 
 #include <asm-generic/socket.h>
 #include <sys/socket.h>
@@ -17,7 +16,6 @@
 
 typedef struct sockaddr_in sockaddr_in;
 typedef struct sockaddr sockaddr;
-typedef struct curl_slist curl_slist;
 
 AT_Result AT_simulation_to_json(cJSON **out_json, AT_Simulation *simulation)
 {
@@ -82,7 +80,7 @@ void AT_raytracer()
         int client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
         if (client_fd < 0) continue;
 
-        // --- Read full request headers ---
+        // request headers
         char buffer[BUFFER_SIZE] = {0};
         int total = 0, bytes = 0;
         while (total < BUFFER_SIZE - 1) {
