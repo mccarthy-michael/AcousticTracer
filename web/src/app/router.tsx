@@ -6,7 +6,8 @@ import {
 } from "react-router";
 import { lazy } from "react";
 import { useUser } from "@/features/auth/context/user-store";
-
+import { FeatureErrorFallback } from "@/components/feature-error-boundary";
+import { ErrorBoundary } from "react-error-boundary";
 // Lazy loading the different pages
 
 const Dashboard = lazy(() => import("@/features/simulation/routes/dashboard"));
@@ -17,7 +18,6 @@ const ProtectedRoute = () => {
   const { current, isLoading } = useUser();
 
   if (isLoading) return null;
-
 
   if (!current) return <Navigate to="/auth/login" replace />;
   return <Outlet />;
@@ -31,26 +31,46 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/dashboard" replace />,
+        element: (
+          <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
+            <Navigate to="/dashboard" replace />
+          </ErrorBoundary>
+        ),
       },
       {
         path: "dashboard",
-        element: <Dashboard />,
+        element: (
+          <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
+            <Dashboard />
+          </ErrorBoundary>
+        ),
       },
       {
-        path: "scene/:id",
-        element: <Scene />,
+        path: "scene/:idOfFile",
+        element: (
+          <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
+            <Scene />
+          </ErrorBoundary>
+        ),
       },
       {
         path: "scene",
-        element: <Navigate to="scene/new" replace />,
+        element: (
+          <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
+            <Navigate to="scene/new" replace />
+          </ErrorBoundary>
+        ),
       },
     ],
   },
   // Public routes
   {
     path: "auth/login",
-    element: <Login />,
+    element: (
+      <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
+        <Login />
+      </ErrorBoundary>
+    ),
   },
   {
     path: "*",
