@@ -34,7 +34,6 @@ function Model({
   url: string;
   onLoad: (box: THREE.Box3) => void;
 }) {
-  useGLTF.preload(url);
   const { scene } = useGLTF(url, true);
 
   const clonedScene = useMemo(() => scene.clone(), [scene]);

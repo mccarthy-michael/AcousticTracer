@@ -12,6 +12,7 @@ export default function UploadForm({ onClose }: UploadFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
   const setPendingFile = useSceneStore((state) => state.setPendingFile);
+  const pendingFile = useSceneStore((state) => state.pendingFile);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -23,7 +24,6 @@ export default function UploadForm({ onClose }: UploadFormProps) {
     try {
       // 1. Store the file in global state instead of uploading immediately
       setPendingFile(file);
-
       // 2. Close the modal
       if (onClose) onClose();
 
